@@ -8,11 +8,11 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public record PaymentRequestDTO(
-        @NotNull
+        @NotNull(message = "Campo obrigatorio.")
         PaymentMethod paymentMethod,
-        @NotBlank
+        @NotBlank(message = "Campo obrigatorio.")
         String cardToken,
-        @NotEmpty
+        @NotEmpty(message = "Campo obrigatorio.")
         BigDecimal amount
 ) {
 }

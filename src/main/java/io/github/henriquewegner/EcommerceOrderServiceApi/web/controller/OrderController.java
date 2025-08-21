@@ -1,6 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.controller;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Status;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 import jakarta.validation.Valid;
@@ -25,7 +26,7 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> save(@RequestBody @Valid OrderRequestDTO orderRequestDTO){
         log.info("Creating new order for customer: {}", orderRequestDTO.customerId());
 
-        OrderResponseDTO response = new OrderResponseDTO(UUID.randomUUID(), Status.CANCELLED, LocalDateTime.now());
+        OrderResponseDTO response = new OrderResponseDTO(UUID.randomUUID(), PaymentStatus.CANCELLED, LocalDateTime.now());
 
         return ResponseEntity.ok(response);
     }

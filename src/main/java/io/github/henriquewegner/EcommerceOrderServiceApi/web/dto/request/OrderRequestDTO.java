@@ -11,11 +11,11 @@ public record OrderRequestDTO(
         @NotNull(message = "Campo obrigatorio.")
         UUID customerId,
         @NotEmpty
-        @NotNull
+        @NotNull(message = "Campo obrigatorio.")
         List<ItemRequestDTO> items,
-        @NotBlank(message = "Campo obrigatorio.")
+        @NotNull(message = "Campo obrigatorio.")
         String currency,
-        @NotNull
+        @NotNull(message = "Campo obrigatorio.")
         PaymentRequestDTO payment,
         @NotBlank(message = "Campo obrigatorio.")
         String idempotencyKey){

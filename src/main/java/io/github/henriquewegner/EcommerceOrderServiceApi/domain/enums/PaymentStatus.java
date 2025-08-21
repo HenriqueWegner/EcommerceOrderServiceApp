@@ -1,7 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums;
 
-public enum Status {
+public enum PaymentStatus {
     CONFIRMED,
     CANCELLED,
-    IN_WAITING
+    PENDING
 }
