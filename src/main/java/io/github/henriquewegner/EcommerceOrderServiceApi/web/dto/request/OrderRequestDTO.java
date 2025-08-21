@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record OrderRequestDTO(
-        @NotBlank(message = "Campo obrigatorio.")
+        @NotNull(message = "Campo obrigatorio.")
         UUID customerId,
         @NotEmpty
         @NotNull
