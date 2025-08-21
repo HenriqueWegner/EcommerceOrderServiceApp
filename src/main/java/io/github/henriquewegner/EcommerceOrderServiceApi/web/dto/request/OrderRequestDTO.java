@@ -1,5 +1,6 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Currency;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +15,7 @@ public record OrderRequestDTO(
         @NotNull(message = "Campo obrigatorio.")
         List<ItemRequestDTO> items,
         @NotNull(message = "Campo obrigatorio.")
-        String currency,
+        Currency currency,
         @NotNull(message = "Campo obrigatorio.")
         PaymentRequestDTO payment,
         @NotBlank(message = "Campo obrigatorio.")

@@ -1,9 +1,12 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.controller;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +25,18 @@ import java.util.UUID;
 @Slf4j
 public class OrderController {
 
+    private final OrderUseCase orderUseCase;
+    private final OrderMapper orderMapper;
+
     @PostMapping
     public ResponseEntity<OrderResponseDTO> save(@RequestBody @Valid OrderRequestDTO orderRequestDTO){
         log.info("Creating new order for customer: {}", orderRequestDTO.customerId());
 
-        OrderResponseDTO response = new OrderResponseDTO(UUID.randomUUID(), PaymentStatus.CANCELLED, LocalDateTime.now());
+        OrderEntity orderEntity = orderMapper.toEntity(orderRequestDTO);
+
+        orderUseCase.createOrder(orderEntity);
+
+        OrderResponseDTO response = new OrderResponseDTO(UUID.randomUUID(), OrderStatus.PENDING , LocalDateTime.now());
 
         return ResponseEntity.ok(response);
     }

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 public record PaymentRequestDTO(
         @NotNull(message = "Campo obrigatorio.")
-        PaymentMethod paymentMethod,
+        PaymentMethod method,
         @NotBlank(message = "Campo obrigatorio.")
         String cardToken,
         @NotEmpty(message = "Campo obrigatorio.")
