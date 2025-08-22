@@ -24,6 +24,7 @@ public class OrderService implements OrderUseCase {
     private final CustomerRepository customerRepository;
     private final OrderMapper orderMapper;
     private final CustomerMapper customerMapper;
+    private final OrderValidator orderValidator;
 
     @Override
     public void createOrder(OrderRequestDTO orderDTO) {
@@ -33,6 +34,8 @@ public class OrderService implements OrderUseCase {
         Customer customer = customerMapper.toDomain(customerEntity);
 
         Order order = orderMapper.toDomain(orderDTO, customer);
+
+        orderValidator.validate(order);
 
         order.getPayment().setPaymentStatus(PaymentStatus.PAID);
         order.setStatus(OrderStatus.CONFIRMED);

@@ -1,5 +1,6 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.common;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidFieldException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.SingleError;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,15 @@ public class GlobalExceptionHandler {
                 "Validation error",
                 errorsList);
     }
+
+    @ExceptionHandler(InvalidFieldException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handleInvalidFieldException(InvalidFieldException e) {
+        return new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "Erro de validação",
+                List.of(new SingleError(e.getField(), e.getMessage())));
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleNonTreatedExceptions(RuntimeException e){
