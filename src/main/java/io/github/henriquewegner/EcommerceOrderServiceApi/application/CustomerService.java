@@ -9,7 +9,6 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.CustomerRepos
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.CustomerRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerOrdersResponseDTO;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.CustomerMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;

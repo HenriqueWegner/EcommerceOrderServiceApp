@@ -8,13 +8,11 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderItemEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.PaymentEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderItemResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mapper(componentModel = "spring", uses = CustomerMapper.class)
 public interface OrderMapper {

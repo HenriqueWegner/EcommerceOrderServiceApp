@@ -1,22 +1,14 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.controller;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor

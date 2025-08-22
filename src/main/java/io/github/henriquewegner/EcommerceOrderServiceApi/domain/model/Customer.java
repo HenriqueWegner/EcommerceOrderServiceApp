@@ -1,6 +1,5 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.domain.model;
 
-import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.util.List;
