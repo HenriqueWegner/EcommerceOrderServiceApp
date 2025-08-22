@@ -27,15 +27,13 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderUseCase orderUseCase;
-    private final OrderMapper orderMapper;
 
     @PostMapping
     public ResponseEntity<OrderResponseDTO> save(@RequestBody @Valid OrderRequestDTO orderRequestDTO){
         log.info("Creating new order for customer: {}", orderRequestDTO.customerId());
 
-        Order order = orderMapper.toDomain(orderRequestDTO);
 
-        orderUseCase.createOrder(order);
+        orderUseCase.createOrder(orderRequestDTO);
 
         OrderResponseDTO response = new OrderResponseDTO(UUID.randomUUID(), OrderStatus.PENDING , LocalDateTime.now());
 

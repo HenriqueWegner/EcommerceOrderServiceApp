@@ -10,5 +10,7 @@ public interface CustomerMapper {
 
     Customer toDomain(CustomerRequestDTO dto);
 
+    Customer toDomain(CustomerEntity dto);
+
     CustomerEntity toEntity(Customer customer);
 }
