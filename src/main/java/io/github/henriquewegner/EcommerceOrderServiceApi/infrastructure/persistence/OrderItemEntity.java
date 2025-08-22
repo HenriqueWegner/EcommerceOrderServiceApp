@@ -1,5 +1,6 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 

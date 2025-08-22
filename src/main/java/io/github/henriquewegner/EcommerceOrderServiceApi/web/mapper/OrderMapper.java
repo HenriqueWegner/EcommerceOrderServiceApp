@@ -2,21 +2,27 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.CustomerEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.OrderItem;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.CustomerRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderItemEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
-import org.mapstruct.Context;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderItemResponseDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Optional;
 
 @Mapper(componentModel = "spring")
-public abstract class OrderMapper {
+public interface OrderMapper {
+
 
     @Mapping(target = "customer", source = "customer")
     @Mapping(target = "id", ignore = true)
-    public abstract Order toDomain(OrderRequestDTO dto,Customer customer);
+    Order toDomain(OrderRequestDTO dto, Customer customer);
 
-    public abstract OrderEntity toEntity(Order order);
+    OrderEntity toEntity(Order order);
+
+    OrderResponseDTO toDto(OrderEntity entity);
 }
