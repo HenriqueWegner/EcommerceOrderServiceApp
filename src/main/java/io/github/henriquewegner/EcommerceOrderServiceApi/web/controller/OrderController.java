@@ -2,6 +2,7 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.web.controller;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
@@ -32,9 +33,9 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> save(@RequestBody @Valid OrderRequestDTO orderRequestDTO){
         log.info("Creating new order for customer: {}", orderRequestDTO.customerId());
 
-        OrderEntity orderEntity = orderMapper.toEntity(orderRequestDTO);
+        Order order = orderMapper.toDomain(orderRequestDTO);
 
-        orderUseCase.createOrder(orderEntity);
+        orderUseCase.createOrder(order);
 
         OrderResponseDTO response = new OrderResponseDTO(UUID.randomUUID(), OrderStatus.PENDING , LocalDateTime.now());
 
