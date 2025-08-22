@@ -4,8 +4,8 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatu
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.CustomerEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.OrderRepository;
@@ -45,9 +45,7 @@ public class OrderService implements OrderUseCase {
         order.getPayment().setPaymentStatus(PaymentStatus.PAID);
         order.setStatus(OrderStatus.CONFIRMED);
 
-        OrderEntity orderEntity = orderMapper.toEntity(order);
-
-        OrderEntity persistedEntity = orderRepository.save(orderEntity);
+        OrderEntity persistedEntity = orderRepository.save(order);
 
         CreatedOrderResponseDTO response = new CreatedOrderResponseDTO(
                 persistedEntity.getId(),

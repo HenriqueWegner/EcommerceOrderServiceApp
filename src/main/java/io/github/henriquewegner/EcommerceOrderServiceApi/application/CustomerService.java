@@ -2,8 +2,8 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.application;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.CustomerEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.CustomerUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.OrderRepository;
@@ -31,8 +31,8 @@ public class CustomerService implements CustomerUseCase {
     public UUID createCustomer(CustomerRequestDTO customerRequestDTO) {
 
         Customer customer = customerMapper.toDomain(customerRequestDTO);
-        CustomerEntity entity = customerMapper.toEntity(customer);
-        CustomerEntity savedEntity = customerRepository.save(entity);
+
+        CustomerEntity savedEntity = customerRepository.save(customer);
 
         return savedEntity.getId();
 
