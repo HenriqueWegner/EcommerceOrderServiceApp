@@ -10,10 +10,12 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentUpdateRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.CustomerMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.PaymentMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class OrderService implements OrderUseCase {
     private final CustomerRepository customerRepository;
     private final OrderMapper orderMapper;
     private final CustomerMapper customerMapper;
+    private final PaymentMapper paymentMapper;
     private final OrderValidator orderValidator;
 
     @Override
@@ -42,17 +45,17 @@ public class OrderService implements OrderUseCase {
 
         orderValidator.validate(order);
 
-        order.getPayment().setPaymentStatus(PaymentStatus.PAID);
+        order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
         order.setStatus(OrderStatus.CONFIRMED);
 
         OrderEntity orderEntity = orderMapper.toEntity(order);
 
-        OrderEntity persistedEntity = orderRepository.save(orderEntity);
+        checkCustomerAndItems(orderEntity);
 
-        CreatedOrderResponseDTO response = new CreatedOrderResponseDTO(
-                persistedEntity.getId(),
-                persistedEntity.getStatus(),
-                persistedEntity.getCreatedAt());
+        orderEntity = orderRepository.save(orderEntity);
+
+        CreatedOrderResponseDTO response =
+                orderMapper.orderEntityToCreatedOrderResponseDTO(orderEntity);
 
         return response;
     }
@@ -67,5 +70,34 @@ public class OrderService implements OrderUseCase {
             return orderResponseDTO;
         }
         return null;
+    }
+
+    @Override
+    public void updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
+        Optional<OrderEntity> orderEntity = orderRepository.findById(UUID.fromString(id));
+
+        if(orderEntity.isPresent()){
+            Order order = orderMapper.toDomain(orderEntity.get());
+
+            order.getPayment().setPaymentStatus(paymentUpdateRequestDTO.status());
+            order.getPayment().setCardToken(paymentUpdateRequestDTO.cardToken());
+
+            orderEntity = Optional.ofNullable(orderMapper.toEntity(order));
+
+            orderEntity.get().linkChildren();
+
+             orderRepository.save(orderEntity.get());
+        }else{
+            throw new IllegalArgumentException("There is no order with this Id.");
+        }
+    }
+
+    public void checkCustomerAndItems(OrderEntity orderEntity){
+        if (orderEntity.getItems() == null || orderEntity.getItems().isEmpty()) {
+            throw new IllegalStateException("OrderEntity items not set");
+        }
+        if (orderEntity.getCustomer() == null) {
+            throw new IllegalStateException("OrderEntity customer not set");
+        }
     }
 }

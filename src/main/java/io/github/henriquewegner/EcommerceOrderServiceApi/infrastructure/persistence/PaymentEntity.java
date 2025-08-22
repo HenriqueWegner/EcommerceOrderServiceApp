@@ -4,6 +4,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentMet
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "payments")
 @Data
+@ToString(exclude = "order")
 public class PaymentEntity {
 
     @Id
