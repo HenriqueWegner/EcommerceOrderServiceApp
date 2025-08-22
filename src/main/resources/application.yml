@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: EcommerceOrderServiceApi
+  output:
+    ansi:
+      enabled: ALWAYS
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5435/ecommerce}
+    username: ${DATSOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show_sql: true
+    properties:
+      hibernate:
+        format_sql: true
