@@ -26,6 +26,5 @@ public class OrderService implements OrderUseCase {
         OrderEntity orderEntity = orderMapper.toEntity(order);
 
         orderRepository.save(orderEntity);
-
     }
 }
