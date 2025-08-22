@@ -3,7 +3,8 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persist
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Currency;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,7 +15,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
-@Data
+@Getter
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class OrderEntity {
 
@@ -54,7 +56,7 @@ public class OrderEntity {
 
     @PrePersist
     @PreUpdate
-    private void linkChildren() {
+    public void linkChildren() {
         if (items != null) {
             items.forEach(i -> i.setOrder(this));
         }
@@ -62,5 +64,17 @@ public class OrderEntity {
             payment.setOrder(this);
         }
     }
+
+    @Override
+    public String toString() {
+        return "OrderEntity{" +
+                "id=" + id +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", idempotencyKey='" + idempotencyKey + '\'' +
+                '}';
+    }
+
 
 }
