@@ -1,8 +1,10 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -26,4 +28,8 @@ public class CustomerEntity {
 
     @Column(name = "address")
     private String address;
+
+    @OneToMany(mappedBy = "customer")
+    @JsonIgnore
+    private List<OrderEntity> orders;
 }
