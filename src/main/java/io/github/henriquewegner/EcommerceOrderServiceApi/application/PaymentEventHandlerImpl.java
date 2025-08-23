@@ -24,22 +24,19 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
     public void handlePaymentUpdate(PaymentEvent event) {
         log.info("Handling payment update for payment: {}",event.getId());
 
-        orderRepository
-                .findById(event.getOrder().getId())
-                .map(orderEntity -> {
-
+        orderRepository.findById(event.getOrder().getId())
+                .ifPresent(orderEntity -> {
                     Order order = orderMapper.toDomain(orderEntity);
                     PaymentStatus actualStatus = order.getPayment().getPaymentStatus();
 
-                    if (actualStatus.equals(PaymentStatus.SUCCESS) ||
-                            actualStatus.equals(PaymentStatus.FAILED)) {
-                        log.error("This payment is processed already: {}", actualStatus);
+                    if (actualStatus == PaymentStatus.SUCCESS || actualStatus == PaymentStatus.FAILED) {
+                        log.info("Payment already processed with status: {}", actualStatus);
+                        return;
                     }
 
                     order = preparePayment(event, order);
-
-                    return orderRepository.save(order);
-                }).orElseGet(null);
+                    orderRepository.save(order);
+                });
     }
 
 
