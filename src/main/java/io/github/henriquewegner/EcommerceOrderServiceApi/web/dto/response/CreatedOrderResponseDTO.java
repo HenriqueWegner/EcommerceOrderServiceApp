@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record CreatedOrderResponseDTO(
-        UUID orderId,
+        UUID id,
         OrderStatus status,
         LocalDateTime createdAt
 ) {

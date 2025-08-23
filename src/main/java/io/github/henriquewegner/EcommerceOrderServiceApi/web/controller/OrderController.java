@@ -2,6 +2,8 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.web.controller;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentRequestDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentUpdateRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 import jakarta.validation.Valid;
@@ -33,9 +35,19 @@ public class OrderController {
 
         OrderResponseDTO orderResponseDTO = orderUseCase.findOrder(id);
 
-        if(orderResponseDTO != null){
-            return ResponseEntity.ok(orderResponseDTO);
-        }
-        return ResponseEntity.notFound().build();
+        return orderResponseDTO != null
+                ? ResponseEntity.ok(orderResponseDTO)
+                : ResponseEntity.notFound().build();
+    }
+
+    @PatchMapping("{id}/payment")
+    public ResponseEntity<Void> updatePayment(@PathVariable("id") String id,
+                                              @RequestBody @Valid PaymentUpdateRequestDTO paymentUpdateRequestDTO){
+
+        boolean isUpdated = orderUseCase.updatePayment(id,paymentUpdateRequestDTO);
+
+        return isUpdated
+                ? ResponseEntity.accepted().build()
+                : ResponseEntity.notFound().build();
     }
 }

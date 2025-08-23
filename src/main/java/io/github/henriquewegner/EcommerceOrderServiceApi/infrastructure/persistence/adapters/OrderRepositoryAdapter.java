@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -19,7 +21,6 @@ public class OrderRepositoryAdapter implements OrderRepository{
 
     private final OrderRepositoryJpa orderRepositoryJpa;
     private final OrderMapper orderMapper;
-    private final CustomerMapper customerMapper;
 
     @Override
     public List<OrderEntity> findByCustomer(CustomerEntity customerEntity) {
@@ -29,8 +30,20 @@ public class OrderRepositoryAdapter implements OrderRepository{
     @Override
     public OrderEntity save(Order order){
         OrderEntity entity = orderMapper.toEntity(order);
+        entity.linkChildren();
         return orderRepositoryJpa.save(entity);
     }
 
-    
+    @Override
+    public Optional<OrderEntity> findById(UUID id) {
+        return orderRepositoryJpa.findById(id);
+    }
+
+    @Override
+    public Optional<OrderEntity> findByIdempotencyKey(String idempotencyKey){
+
+        return orderRepositoryJpa.findByIdempotencyKey(idempotencyKey);
+    }
+
+
 }

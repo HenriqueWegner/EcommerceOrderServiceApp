@@ -3,6 +3,7 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persist
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "customers")
 @Data
+@ToString(exclude = "orders")
 public class CustomerEntity {
 
     @Id

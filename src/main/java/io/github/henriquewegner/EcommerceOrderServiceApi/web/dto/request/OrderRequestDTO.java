@@ -4,13 +4,15 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Currency;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.UUID;
 
 import java.util.List;
-import java.util.UUID;
 
 public record OrderRequestDTO(
+
+        @UUID
         @NotNull(message = "Campo obrigatorio.")
-        UUID customerId,
+        String customerId,
         @NotEmpty
         @NotNull(message = "Campo obrigatorio.")
         List<ItemRequestDTO> items,
