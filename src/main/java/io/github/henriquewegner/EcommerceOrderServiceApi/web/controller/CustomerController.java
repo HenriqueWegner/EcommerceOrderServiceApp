@@ -35,7 +35,7 @@ public class CustomerController implements GenericController{
     public ResponseEntity<CustomerOrdersResponseDTO> findCustomerOrders(
             @PathVariable("id") String id){
 
-        return Optional.ofNullable(customerUseCase.findCustomerOrders(id))
+        return customerUseCase.findCustomerOrders(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(ResponseEntity.notFound()::build);
 

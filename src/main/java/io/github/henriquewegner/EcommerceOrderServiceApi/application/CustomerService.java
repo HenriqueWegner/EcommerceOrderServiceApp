@@ -39,22 +39,24 @@ public class CustomerService implements CustomerUseCase {
     }
 
     @Override
-    public CustomerOrdersResponseDTO findCustomerOrders(String id) {
+    public Optional<CustomerOrdersResponseDTO> findCustomerOrders(String id) {
         Optional<CustomerEntity> customerEntity = customerRepository.findById(UUID.fromString(id));
 
-        if(customerEntity.isPresent()){
+        if(customerEntity.isPresent()) {
             List<OrderEntity> orderEntities = orderRepository.findByCustomer(customerEntity.get());
+            CustomerOrdersResponseDTO customerDto = prepareCustomerDto(orderEntities, customerEntity.get());
 
-            List<Order> orders = orderMapper.toDomain(orderEntities);
-            Customer customer = customerMapper.toDomain(customerEntity.get());
-            customer.setOrders(orders);
-
-            CustomerOrdersResponseDTO customerDto = customerMapper.toDto(customer);
-
-            return customerDto;
-
+            return Optional.of(customerDto);
         }
-        return null;
+        return Optional.empty();
+    }
+
+    private CustomerOrdersResponseDTO prepareCustomerDto(List<OrderEntity> orderEntities, CustomerEntity customerEntity){
+        List<Order> orders = orderMapper.toDomain(orderEntities);
+        Customer customer = customerMapper.toDomain(customerEntity);
+        customer.setOrders(orders);
+
+        return customerMapper.toDto(customer);
     }
 
 }
