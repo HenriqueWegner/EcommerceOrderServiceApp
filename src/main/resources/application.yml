@@ -30,3 +30,4 @@ spring:
       order-event: order-events
       payment-event: payment-events
       payment-update: payment-updates
+      payment-update-dlq: payment-updates-dlq
