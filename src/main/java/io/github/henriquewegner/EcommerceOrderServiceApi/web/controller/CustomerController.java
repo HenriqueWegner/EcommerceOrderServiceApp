@@ -1,6 +1,6 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.controller;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.CustomerUseCase;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.CustomerRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerOrdersResponseDTO;
 import jakarta.validation.Valid;
@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -25,7 +26,6 @@ public class CustomerController implements GenericController{
         log.info("Creating new customer named: {}", customerRequestDTO.name());
 
         UUID customerId = customerUseCase.createCustomer(customerRequestDTO);
-
         URI location = gerarHeaderLocation(customerId);
 
         return ResponseEntity.created(location).build();
@@ -35,13 +35,10 @@ public class CustomerController implements GenericController{
     public ResponseEntity<CustomerOrdersResponseDTO> findCustomerOrders(
             @PathVariable("id") String id){
 
-        CustomerOrdersResponseDTO customerOrdersDTO = customerUseCase.findCustomerOrders(id);
+        return Optional.ofNullable(customerUseCase.findCustomerOrders(id))
+                .map(ResponseEntity::ok)
+                .orElseGet(ResponseEntity.notFound()::build);
 
-        if(customerOrdersDTO != null){
-            return ResponseEntity.ok(customerOrdersDTO);
-        }
-
-        return ResponseEntity.notFound().build();
     }
 
 }

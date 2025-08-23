@@ -1,12 +1,10 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.adapters;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.repositories.OrderRepositoryJpa;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.OrderRepository;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.CustomerMapper;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

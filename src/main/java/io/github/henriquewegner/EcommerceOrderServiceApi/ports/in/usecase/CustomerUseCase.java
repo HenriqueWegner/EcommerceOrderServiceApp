@@ -1,4 +1,4 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.ports.in;
+package io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.CustomerRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerOrdersResponseDTO;

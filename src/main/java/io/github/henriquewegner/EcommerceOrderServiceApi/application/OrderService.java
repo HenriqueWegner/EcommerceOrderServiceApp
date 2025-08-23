@@ -5,12 +5,12 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatu
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.CustomerRepository;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.OrderRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.publisher.EventPublisher;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentUpdateRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
@@ -22,7 +22,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,58 +34,77 @@ public class OrderService implements OrderUseCase {
     private final CustomerMapper customerMapper;
     private final PaymentMapper paymentMapper;
     private final OrderValidator orderValidator;
+    private final EventPublisher publisher;
 
     @Override
     public CreatedOrderResponseDTO createOrder(OrderRequestDTO orderDTO) {
 
-        CustomerEntity customerEntity = customerRepository
-                .findById(UUID.fromString(orderDTO.customerId()))
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found."));
-
-        Customer customer = customerMapper.toDomain(customerEntity);
-        Order order = orderMapper.toDomain(orderDTO, customer);
-
-        orderValidator.validate(order);
-        setInitialStatus(order);
-
+        Customer customer = findCustomer(orderDTO.customerId());
+        Order order = prepareOrder(orderDTO, customer);
         OrderEntity savedEntity = orderRepository.save(order);
+        publishEvents(savedEntity);
 
-        CreatedOrderResponseDTO response =
-                orderMapper.orderEntityToCreatedOrderResponseDTO(savedEntity);
-
-        return response;
+        return orderMapper.orderEntityToCreatedOrderResponseDTO(savedEntity);
     }
 
     @Override
     public OrderResponseDTO findOrder(String id) {
 
-        Optional<OrderEntity> orderEntity = orderRepository.findById(UUID.fromString(id));
-
-        if(orderEntity.isPresent()){
-            OrderResponseDTO orderResponseDTO = orderMapper.toDto(orderEntity.get());
-            return orderResponseDTO;
-        }
-        return null;
+        return orderRepository.findById(UUID.fromString(id))
+                .map(orderMapper::toDto)
+                .orElse(null);
     }
 
     @Override
     public boolean updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
-        Optional<OrderEntity> orderEntity = orderRepository.findById(UUID.fromString(id));
 
-        if(orderEntity.isPresent()){
-            Order order = orderMapper.toDomain(orderEntity.get());
+        return orderRepository.findById(UUID.fromString(id))
+                .map(orderEntity -> {
+                    Order order = prepareOrderPayment(paymentUpdateRequestDTO, orderEntity);
+                    orderRepository.save(order);
 
-            order.getPayment().setPaymentStatus(paymentUpdateRequestDTO.status());
-            order.getPayment().setCardToken(paymentUpdateRequestDTO.cardToken());
+                    return Boolean.TRUE;
+                })
+                .orElse(Boolean.FALSE);
+    }
 
-             orderRepository.save(order);
-             return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+    private Customer findCustomer(String customerId){
+
+        CustomerEntity customerEntity = customerRepository
+                .findById(UUID.fromString(customerId))
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found."));
+
+        return customerMapper.toDomain(customerEntity);
+    }
+
+    private Order prepareOrder(OrderRequestDTO orderDTO, Customer customer){
+
+        Order order = orderMapper.toDomain(orderDTO, customer);
+        orderValidator.validate(order);
+        setInitialStatus(order);
+
+        return order;
     }
 
     private void setInitialStatus(Order order){
+
         order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
         order.setStatus(OrderStatus.CONFIRMED);
     }
+
+    private void publishEvents(OrderEntity orderEntity){
+        publisher.publishOrderCreated(orderMapper.toEvent(orderEntity));
+        publisher.publishPaymentEvent(paymentMapper.toEvent(orderEntity.getPayment()));
+    }
+
+    private Order prepareOrderPayment(PaymentUpdateRequestDTO paymentUpdateRequestDTO,
+                                      OrderEntity orderEntity){
+
+        Order order = orderMapper.toDomain(orderEntity);
+        order.getPayment().setPaymentStatus(paymentUpdateRequestDTO.status());
+        order.getPayment().setCardToken(paymentUpdateRequestDTO.cardToken());
+
+        return order;
+    }
+
 }

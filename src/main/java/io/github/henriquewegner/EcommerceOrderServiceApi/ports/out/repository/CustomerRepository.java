@@ -1,10 +1,8 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.ports.out;
+package io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
