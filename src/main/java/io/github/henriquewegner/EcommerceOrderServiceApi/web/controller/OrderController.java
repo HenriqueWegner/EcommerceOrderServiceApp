@@ -1,8 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.controller;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentUpdateRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
@@ -11,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,20 +34,16 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable("id") String id){
         log.info("Finding order for id: {}", id);
 
-        OrderResponseDTO orderResponseDTO = orderUseCase.findOrder(id);
-
-        return orderResponseDTO != null
-                ? ResponseEntity.ok(orderResponseDTO)
-                : ResponseEntity.notFound().build();
+        return Optional.ofNullable(orderUseCase.findOrder(id))
+                .map(ResponseEntity::ok)
+                .orElseGet(ResponseEntity.notFound()::build);
     }
 
     @PatchMapping("{id}/payment")
     public ResponseEntity<Void> updatePayment(@PathVariable("id") String id,
                                               @RequestBody @Valid PaymentUpdateRequestDTO paymentUpdateRequestDTO){
 
-        boolean isUpdated = orderUseCase.updatePayment(id,paymentUpdateRequestDTO);
-
-        return isUpdated
+        return orderUseCase.updatePayment(id,paymentUpdateRequestDTO)
                 ? ResponseEntity.accepted().build()
                 : ResponseEntity.notFound().build();
     }

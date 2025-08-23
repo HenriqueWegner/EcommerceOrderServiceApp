@@ -1,5 +1,6 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.OrderCreatedEvent;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
@@ -34,4 +35,6 @@ public interface OrderMapper {
 
     @Mapping(target = "id", source = "id")
     CreatedOrderResponseDTO orderEntityToCreatedOrderResponseDTO(OrderEntity orderEntity);
+
+    OrderCreatedEvent toEvent(OrderEntity entity);
 }

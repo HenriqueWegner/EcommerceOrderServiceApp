@@ -1,0 +1,18 @@
+#Create Topic
+
+docker exec -it kafka-broker kafka-topics --create --topic order-events --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+docker exec -it kafka-broker kafka-topics --create --topic payment-events --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+docker exec -it kafka-broker kafka-topics --create --topic payment-updates --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+#Create message
+
+docker exec -it kafka-broker kafka-console-producer --topic payment-updates --bootstrap-server localhost:9092
+
+#Consume message
+
+docker exec -it kafka-broker kafka-console-consumer --topic order-events --bootstrap-server localhost:9092 --from-beginning
+
+docker exec -it kafka-broker kafka-console-consumer --topic payment-events --bootstrap-server localhost:9092 --from-beginning
+

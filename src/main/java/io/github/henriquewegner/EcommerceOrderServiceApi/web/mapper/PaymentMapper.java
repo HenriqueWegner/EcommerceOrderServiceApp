@@ -1,5 +1,6 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Payment;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.PaymentEntity;
@@ -14,5 +15,7 @@ public interface PaymentMapper {
     Payment paymentEntityToPayment(PaymentEntity entity);
 
     Payment paymentUpdateRequestDTOToPayment(PaymentUpdateRequestDTO dto);
+
+    PaymentEvent toEvent(PaymentEntity entity);
 
 }
