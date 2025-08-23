@@ -1,4 +1,4 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence;
+package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Currency;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;

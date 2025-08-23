@@ -11,5 +11,5 @@ public interface OrderUseCase {
 
     OrderResponseDTO findOrder(String id);
 
-    void updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO);
+    boolean updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO);
 }

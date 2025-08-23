@@ -1,4 +1,4 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence;
+package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;

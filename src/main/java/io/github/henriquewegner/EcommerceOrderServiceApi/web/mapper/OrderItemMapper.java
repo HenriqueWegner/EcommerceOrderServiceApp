@@ -1,7 +1,8 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.OrderItem;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderItemEntity;
+
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderItemEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

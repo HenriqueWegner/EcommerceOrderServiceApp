@@ -1,11 +1,13 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.application;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.application.validator.OrderValidator;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.CustomerEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.OrderEntity;
+
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.OrderRepository;
@@ -36,26 +38,21 @@ public class OrderService implements OrderUseCase {
 
     @Override
     public CreatedOrderResponseDTO createOrder(OrderRequestDTO orderDTO) {
-        CustomerEntity customerEntity = customerRepository.findById(orderDTO.customerId())
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+
+        CustomerEntity customerEntity = customerRepository
+                .findById(UUID.fromString(orderDTO.customerId()))
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found."));
 
         Customer customer = customerMapper.toDomain(customerEntity);
-
         Order order = orderMapper.toDomain(orderDTO, customer);
 
         orderValidator.validate(order);
+        setInitialStatus(order);
 
-        order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
-        order.setStatus(OrderStatus.CONFIRMED);
-
-        OrderEntity orderEntity = orderMapper.toEntity(order);
-
-        checkCustomerAndItems(orderEntity);
-
-        orderEntity = orderRepository.save(orderEntity);
+        OrderEntity savedEntity = orderRepository.save(order);
 
         CreatedOrderResponseDTO response =
-                orderMapper.orderEntityToCreatedOrderResponseDTO(orderEntity);
+                orderMapper.orderEntityToCreatedOrderResponseDTO(savedEntity);
 
         return response;
     }
@@ -73,7 +70,7 @@ public class OrderService implements OrderUseCase {
     }
 
     @Override
-    public void updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
+    public boolean updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
         Optional<OrderEntity> orderEntity = orderRepository.findById(UUID.fromString(id));
 
         if(orderEntity.isPresent()){
@@ -82,22 +79,14 @@ public class OrderService implements OrderUseCase {
             order.getPayment().setPaymentStatus(paymentUpdateRequestDTO.status());
             order.getPayment().setCardToken(paymentUpdateRequestDTO.cardToken());
 
-            orderEntity = Optional.ofNullable(orderMapper.toEntity(order));
-
-            orderEntity.get().linkChildren();
-
-             orderRepository.save(orderEntity.get());
-        }else{
-            throw new IllegalArgumentException("There is no order with this Id.");
+             orderRepository.save(order);
+             return Boolean.TRUE;
         }
+        return Boolean.FALSE;
     }
 
-    public void checkCustomerAndItems(OrderEntity orderEntity){
-        if (orderEntity.getItems() == null || orderEntity.getItems().isEmpty()) {
-            throw new IllegalStateException("OrderEntity items not set");
-        }
-        if (orderEntity.getCustomer() == null) {
-            throw new IllegalStateException("OrderEntity customer not set");
-        }
+    private void setInitialStatus(Order order){
+        order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
+        order.setStatus(OrderStatus.CONFIRMED);
     }
 }

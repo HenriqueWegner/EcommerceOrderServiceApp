@@ -35,18 +35,19 @@ public class OrderController {
 
         OrderResponseDTO orderResponseDTO = orderUseCase.findOrder(id);
 
-        if(orderResponseDTO != null){
-            return ResponseEntity.ok(orderResponseDTO);
-        }
-        return ResponseEntity.notFound().build();
+        return orderResponseDTO != null
+                ? ResponseEntity.ok(orderResponseDTO)
+                : ResponseEntity.notFound().build();
     }
 
     @PatchMapping("{id}/payment")
     public ResponseEntity<Void> updatePayment(@PathVariable("id") String id,
                                               @RequestBody @Valid PaymentUpdateRequestDTO paymentUpdateRequestDTO){
 
-        orderUseCase.updatePayment(id,paymentUpdateRequestDTO);
+        boolean isUpdated = orderUseCase.updatePayment(id,paymentUpdateRequestDTO);
 
-        return ResponseEntity.accepted().build();
+        return isUpdated
+                ? ResponseEntity.accepted().build()
+                : ResponseEntity.notFound().build();
     }
 }

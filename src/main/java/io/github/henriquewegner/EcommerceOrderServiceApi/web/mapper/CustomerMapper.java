@@ -1,7 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.CustomerEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.CustomerRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerOrdersResponseDTO;
 import org.mapstruct.Mapper;
