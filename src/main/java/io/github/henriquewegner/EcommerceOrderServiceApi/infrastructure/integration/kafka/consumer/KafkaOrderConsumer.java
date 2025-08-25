@@ -12,7 +12,7 @@ public class KafkaOrderConsumer {
 
     private final PaymentEventHandler handler;
 
-    @KafkaListener(topics = "${spring.kafka.topic.payment-update}", groupId = "my-group-id")
+    @KafkaListener(topics = "${spring.kafka.topic.payment-update}", groupId = "order-group")
     public void consume(PaymentEvent event) {
         handler.handlePaymentUpdate(event);
     }

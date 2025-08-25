@@ -4,6 +4,6 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.OrderCreat
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;
 
 public interface EventPublisher {
-    void publishOrderCreated(OrderCreatedEvent event);
-    void publishPaymentEvent(PaymentEvent event);
+    void publishOrderCreated(String event, String key);
+    void publishPaymentEvent(String event, String key);
 }

@@ -20,12 +20,12 @@ public class KafkaEventPublisher implements EventPublisher {
     private final KafkaTemplate<String,Object> kafkaTemplate;
 
     @Override
-    public void publishOrderCreated(OrderCreatedEvent event) {
-        kafkaTemplate.send(ORDER_EVENT_TOPIC, event.getId(), event);
+    public void publishOrderCreated(String event, String key) {
+        kafkaTemplate.send(ORDER_EVENT_TOPIC, key, event);
     }
 
     @Override
-    public void publishPaymentEvent(PaymentEvent event) {
-        kafkaTemplate.send(PAYMENT_EVENT_TOPIC, event);
+    public void publishPaymentEvent(String event, String key) {
+        kafkaTemplate.send(PAYMENT_EVENT_TOPIC,key, event);
     }
 }

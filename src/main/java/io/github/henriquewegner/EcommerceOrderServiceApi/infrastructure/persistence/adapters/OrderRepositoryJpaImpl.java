@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class OrderRepositoryImpl implements OrderRepository{
+public class OrderRepositoryJpaImpl implements OrderRepository{
 
     private final OrderRepositoryJpa orderRepositoryJpa;
     private final OrderMapper orderMapper;

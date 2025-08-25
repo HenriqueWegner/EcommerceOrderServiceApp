@@ -4,6 +4,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.CustomerRequestDTO;
@@ -12,6 +13,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.CustomerMapp
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +21,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerUseCase implements io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase {
+public class CustomerUseCaseImpl implements CustomerUseCase {
 
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
@@ -27,6 +29,7 @@ public class CustomerUseCase implements io.github.henriquewegner.EcommerceOrderS
     private final OrderMapper orderMapper;
 
     @Override
+    @Transactional
     public UUID createCustomer(CustomerRequestDTO customerRequestDTO) {
 
         Customer customer = customerMapper.toDomain(customerRequestDTO);
@@ -38,6 +41,7 @@ public class CustomerUseCase implements io.github.henriquewegner.EcommerceOrderS
     }
 
     @Override
+    @Transactional
     public Optional<CustomerOrdersResponseDTO> findCustomerOrders(String id) {
         Optional<CustomerEntity> customerEntity = customerRepository.findById(UUID.fromString(id));
 

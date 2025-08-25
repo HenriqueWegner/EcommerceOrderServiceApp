@@ -35,3 +35,12 @@ create table payments (
     amount numeric(18,2),
     constraint fk_payment_order foreign key (order_id) references orders(id)
 );
+
+CREATE TABLE outbox_events (
+    id BIGSERIAL PRIMARY KEY,
+    aggregate_id VARCHAR(255),
+    event_type VARCHAR(100),
+    payload JSONB,
+    processed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT now()
+);

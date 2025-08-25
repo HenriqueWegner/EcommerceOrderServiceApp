@@ -1,15 +1,21 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.application.usecase;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.application.util.JsonUtil;
 import io.github.henriquewegner.EcommerceOrderServiceApi.application.validator.OrderValidator;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.OrderCreatedEvent;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.publisher.EventPublisher;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentUpdateRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
@@ -20,12 +26,13 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.PaymentMappe
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class OrderUseCase implements io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase {
+public class OrderUseCaseImpl implements OrderUseCase {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
@@ -33,20 +40,24 @@ public class OrderUseCase implements io.github.henriquewegner.EcommerceOrderServ
     private final CustomerMapper customerMapper;
     private final PaymentMapper paymentMapper;
     private final OrderValidator orderValidator;
-    private final EventPublisher publisher;
+    private final OutboxRepository outboxRepository;
+    private final JsonUtil jsonUtil;
+
 
     @Override
+    @Transactional
     public CreatedOrderResponseDTO createOrder(OrderRequestDTO orderDTO) {
 
         Customer customer = findCustomer(orderDTO.customerId());
         Order order = prepareOrder(orderDTO, customer);
         OrderEntity savedEntity = orderRepository.save(order);
-        publishEvents(savedEntity);
+//        saveOutboxEvents(savedEntity);
 
         return orderMapper.orderEntityToCreatedOrderResponseDTO(savedEntity);
     }
 
     @Override
+    @Transactional
     public OrderResponseDTO findOrder(String id) {
 
         return orderRepository.findById(UUID.fromString(id))
@@ -55,6 +66,7 @@ public class OrderUseCase implements io.github.henriquewegner.EcommerceOrderServ
     }
 
     @Override
+    @Transactional
     public boolean updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
 
         return orderRepository.findById(UUID.fromString(id))
@@ -91,9 +103,22 @@ public class OrderUseCase implements io.github.henriquewegner.EcommerceOrderServ
         order.setStatus(OrderStatus.PENDING_PAYMENT);
     }
 
-    private void publishEvents(OrderEntity orderEntity){
-        publisher.publishOrderCreated(orderMapper.toEvent(orderEntity));
-        publisher.publishPaymentEvent(paymentMapper.toEvent(orderEntity.getPayment()));
+    private void saveOutboxEvents(OrderEntity orderEntity){
+
+        OutboxEventEntity orderCreatedEvent = new OutboxEventEntity();
+        orderCreatedEvent.setAggregateId(orderEntity.getId().toString());
+        orderCreatedEvent.setEventType(EventType.ORDER_CREATED);
+        orderCreatedEvent.setPayload(jsonUtil.toJson(orderMapper.toEvent(orderEntity)));
+        outboxRepository.save(orderCreatedEvent);
+
+        OutboxEventEntity paymentEvent = new OutboxEventEntity();
+        paymentEvent.setAggregateId(orderEntity.getId().toString());
+        paymentEvent.setEventType(EventType.PAYMENT_EVENT);
+        paymentEvent.setPayload(jsonUtil.toJson(paymentMapper.toEvent(orderEntity.getPayment())));
+        outboxRepository.save(paymentEvent);
+
+        outboxRepository.save(orderCreatedEvent);
+        outboxRepository.save(paymentEvent);
     }
 
     private Order prepareOrderPayment(PaymentUpdateRequestDTO paymentUpdateRequestDTO,
