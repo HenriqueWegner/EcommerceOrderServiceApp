@@ -1,4 +1,4 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.application;
+package io.github.henriquewegner.EcommerceOrderServiceApi.application.usecase;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentEventHandlerImpl implements PaymentEventHandler {
+public class PaymentEventHandlerUseCase implements PaymentEventHandler {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;

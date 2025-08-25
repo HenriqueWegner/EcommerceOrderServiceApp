@@ -1,4 +1,4 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.application;
+package io.github.henriquewegner.EcommerceOrderServiceApi.application.usecase;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.application.validator.OrderValidator;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
@@ -7,7 +7,6 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.publisher.EventPublisher;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
@@ -26,7 +25,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class OrderService implements OrderUseCase {
+public class OrderUseCase implements io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;

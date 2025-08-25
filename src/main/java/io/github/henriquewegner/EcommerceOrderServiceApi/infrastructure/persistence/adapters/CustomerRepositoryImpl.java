@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class CustomerRepositoryAdapter implements CustomerRepository{
+public class CustomerRepositoryImpl implements CustomerRepository{
 
     private final CustomerRepositoryJpa customerRepositoryJpa;
     private final CustomerMapper customerMapper;
