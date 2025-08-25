@@ -89,7 +89,7 @@ public class OrderService implements OrderUseCase {
     private void setInitialStatus(Order order){
 
         order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
-        order.setStatus(OrderStatus.CONFIRMED);
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
     }
 
     private void publishEvents(OrderEntity orderEntity){
