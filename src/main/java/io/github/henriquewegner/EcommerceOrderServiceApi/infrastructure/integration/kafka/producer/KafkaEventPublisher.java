@@ -1,4 +1,4 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integration.producer;
+package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integration.kafka.producer;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.OrderCreatedEvent;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;

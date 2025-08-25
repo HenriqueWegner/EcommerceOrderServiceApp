@@ -1,4 +1,4 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integration.consumer;
+package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integration.kafka.consumer;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
