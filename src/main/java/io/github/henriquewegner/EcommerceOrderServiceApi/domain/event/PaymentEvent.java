@@ -15,5 +15,5 @@ public class PaymentEvent {
     private PaymentMethod method;
     private PaymentStatus paymentStatus;
     private String cardToken;
-    private BigDecimal amount;
+    private String amount;
 }
