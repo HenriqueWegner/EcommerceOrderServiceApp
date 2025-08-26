@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerUseCase implements io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase {
+public class CustomerUseCaseImpl implements io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase {
 
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;

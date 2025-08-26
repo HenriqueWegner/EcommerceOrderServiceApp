@@ -21,11 +21,9 @@ public class OrderValidator {
 
     public void validate(Order order){
 
-
         validateOrder(order);
         order.getItems().forEach(this::validateItems);
         validatePayment(order.getPayment());
-
     }
 
     private void validateOrder(Order order){

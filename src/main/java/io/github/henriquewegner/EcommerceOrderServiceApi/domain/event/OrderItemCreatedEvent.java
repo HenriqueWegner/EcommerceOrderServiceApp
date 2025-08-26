@@ -10,5 +10,5 @@ public class OrderItemCreatedEvent {
 
     private String sku;
     private Integer quantity;
-    private BigDecimal amount;
+    private BigDecimal unitPrice;
 }

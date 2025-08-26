@@ -42,6 +42,7 @@ public class OrderController {
     @PatchMapping("{id}/payment")
     public ResponseEntity<Void> updatePayment(@PathVariable("id") String id,
                                               @RequestBody @Valid PaymentUpdateRequestDTO paymentUpdateRequestDTO){
+        log.info("Updating payment for id: {}", id);
 
         return orderUseCase.updatePayment(id,paymentUpdateRequestDTO)
                 ? ResponseEntity.accepted().build()

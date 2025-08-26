@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentEventHandlerUseCase implements PaymentEventHandler {
+public class PaymentEventHandlerImpl implements PaymentEventHandler {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
