@@ -20,6 +20,8 @@ public record OrderRequestDTO(
         Currency currency,
         @NotNull(message = "Campo obrigatorio.")
         PaymentRequestDTO payment,
+        @NotNull(message = "Campo obrigatorio.")
+        ShippingAddressDTO shippingAddress,
         @NotBlank(message = "Campo obrigatorio.")
         String idempotencyKey){
 }

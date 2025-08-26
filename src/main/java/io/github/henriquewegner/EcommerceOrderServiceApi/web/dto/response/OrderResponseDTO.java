@@ -13,6 +13,7 @@ public record OrderResponseDTO(
         List<OrderItemResponseDTO>items,
         Currency currency,
         PaymentResponseDTO payment,
+        ShippingAddressResponseDTO shippingAddress,
         OrderStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,

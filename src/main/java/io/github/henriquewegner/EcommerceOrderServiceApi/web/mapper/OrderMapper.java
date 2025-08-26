@@ -13,7 +13,10 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 @Mapper(componentModel = "spring",
-        uses = {CustomerMapper.class, OrderItemMapper.class, PaymentMapper.class})
+        uses = {CustomerMapper.class,
+                OrderItemMapper.class,
+                PaymentMapper.class,
+                ShippingAddressMapper.class})
 public interface OrderMapper {
 
     @Mapping(target = "customer", source = "customer")
@@ -22,6 +25,7 @@ public interface OrderMapper {
 
     @Mapping(target = "customer", source = "customer")
     @Mapping(target = "items", source = "items")
+    @Mapping(target = "shippingAddress", source = "shippingAddress")
     OrderEntity toEntity(Order order);
 
     @Mapping(target = "customer", ignore = true)

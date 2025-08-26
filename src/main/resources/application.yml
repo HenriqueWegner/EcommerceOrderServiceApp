@@ -31,3 +31,7 @@ spring:
       payment-event: payment-events
       payment-update: payment-updates
       payment-update-dlq: payment-updates-dlq
+
+api:
+  url:
+    via-cep: "https://viacep.com.br/ws/%s/json/"

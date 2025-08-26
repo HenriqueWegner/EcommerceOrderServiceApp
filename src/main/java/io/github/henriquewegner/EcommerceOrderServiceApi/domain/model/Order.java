@@ -17,6 +17,7 @@ public class Order {
     private Currency currency;
     private Payment payment;
     private OrderStatus status;
+    private ShippingAddress shippingAddress;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String idempotencyKey;
