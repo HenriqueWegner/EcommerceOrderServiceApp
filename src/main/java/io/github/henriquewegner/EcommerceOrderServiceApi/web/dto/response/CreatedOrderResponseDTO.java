@@ -8,6 +8,7 @@ import java.util.UUID;
 public record CreatedOrderResponseDTO(
         UUID id,
         OrderStatus status,
+        CreatedShippingResponseDTO shipping,
         LocalDateTime createdAt
 ) {
 }

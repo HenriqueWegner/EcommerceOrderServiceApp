@@ -35,3 +35,4 @@ spring:
 api:
   url:
     via-cep: "https://viacep.com.br/ws/%s/json/"
+    shipping-quotation: "https://showcommerce.com.br/api/calculadora-frete/"

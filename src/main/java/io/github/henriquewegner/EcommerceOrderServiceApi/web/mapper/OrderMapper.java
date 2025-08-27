@@ -16,6 +16,7 @@ import java.util.List;
         uses = {CustomerMapper.class,
                 OrderItemMapper.class,
                 PaymentMapper.class,
+                ShippingMapper.class,
                 ShippingAddressMapper.class})
 public interface OrderMapper {
 
@@ -23,19 +24,17 @@ public interface OrderMapper {
     @Mapping(target = "id", ignore = true)
     Order toDomain(OrderRequestDTO dto, Customer customer);
 
+    List<Order> toDomain(List<OrderEntity> entities);
+
+    Order toDomain(OrderEntity orderEntity);
+
     @Mapping(target = "customer", source = "customer")
     @Mapping(target = "items", source = "items")
     @Mapping(target = "shippingAddress", source = "shippingAddress")
     OrderEntity toEntity(Order order);
 
-    @Mapping(target = "customer", ignore = true)
-    @Mapping(target = "items", ignore = true)
-    List<Order> toDomain(List<OrderEntity> entities);
-
     @Mapping(target = "items", source = "items")
     OrderResponseDTO toDto(OrderEntity entity);
-
-    Order toDomain(OrderEntity orderEntity);
 
     @Mapping(target = "id", source = "id")
     CreatedOrderResponseDTO orderEntityToCreatedOrderResponseDTO(OrderEntity orderEntity);

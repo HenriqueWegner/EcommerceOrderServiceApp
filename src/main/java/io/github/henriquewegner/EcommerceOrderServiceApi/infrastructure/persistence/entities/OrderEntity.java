@@ -2,6 +2,7 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persist
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Currency;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,6 +47,9 @@ public class OrderEntity {
     @Embedded
     private ShippingAddressValueObject shippingAddress;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private ShippingEntity shipping;
+
     @CreatedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -65,6 +69,9 @@ public class OrderEntity {
         }
         if (payment != null) {
             payment.setOrder(this);
+        }
+        if (shipping != null) {
+            shipping.setOrder(this);
         }
     }
 

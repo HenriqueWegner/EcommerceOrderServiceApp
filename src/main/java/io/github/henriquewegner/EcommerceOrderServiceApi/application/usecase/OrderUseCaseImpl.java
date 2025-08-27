@@ -6,12 +6,14 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatu
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.ShippingAddress;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
@@ -40,6 +42,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
     private final OrderValidator orderValidator;
     private final OutboxRepository outboxRepository;
     private final AddressLookup addressLookup;
+    private final ShippingQuotation shippingQuotation;
 
 
     @Override
@@ -89,17 +92,23 @@ public class OrderUseCaseImpl implements OrderUseCase {
         orderValidator.validate(order);
         setInitialStatus(order);
         enrichAddress(order);
+        quoteShipping(order);
 
         return order;
     }
 
-    private Order enrichAddress(Order order) {
+
+    private void enrichAddress(Order order) {
         ShippingAddress address = addressLookup.lookUpByCep(order.getShippingAddress().getCep());
         address.setNumber(order.getShippingAddress().getNumber());
         address.setComplement(order.getShippingAddress().getComplement());
         order.setShippingAddress(address);
 
-        return order;
+    }
+
+    private void quoteShipping(Order order) {
+        Shipping quotation = shippingQuotation.quoteShipping(order.getShippingAddress().getCep());
+        order.setShipping(quotation);
     }
 
     private void setInitialStatus(Order order){

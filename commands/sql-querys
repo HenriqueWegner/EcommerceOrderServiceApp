@@ -44,3 +44,14 @@ create table payments (
     constraint fk_payment_order foreign key (order_id) references orders(id)
 );
 
+create table shippings (
+    id uuid not null primary key,
+    price numeric(10,2) not null,
+    estimated_delivery date not null,
+    carrier varchar(50) not null,
+    cep_origin varchar(9) not null,
+    cep_destination varchar(9) not null,
+    order_id uuid not null unique,
+    constraint fk_shipping_order foreign key (order_id) references orders(id)
+);
+
