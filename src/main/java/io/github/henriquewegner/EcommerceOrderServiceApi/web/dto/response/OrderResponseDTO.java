@@ -14,6 +14,7 @@ public record OrderResponseDTO(
         Currency currency,
         PaymentResponseDTO payment,
         ShippingAddressResponseDTO shippingAddress,
+        ShippingResponseDTO shipping,
         OrderStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,

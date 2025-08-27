@@ -6,6 +6,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.Single
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.errors.ApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -55,6 +56,15 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(),
                 "Validation error.",
                 List.of(new SingleError(e.getField(), e.getMessage())));
+    }
+
+    @ExceptionHandler(ApiException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleApiExceptions(RuntimeException e){
+        log.error("Unexpected error: {}", e);
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                e.getMessage(),
+                List.of());
     }
 
     @ExceptionHandler(RuntimeException.class)
