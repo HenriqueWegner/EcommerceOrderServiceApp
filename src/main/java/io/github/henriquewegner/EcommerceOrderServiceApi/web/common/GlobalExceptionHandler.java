@@ -1,6 +1,8 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.common;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidEnumException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidFieldException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.SingleError;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ErrorResponse;
@@ -8,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ApiException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +71,20 @@ public class GlobalExceptionHandler {
                 List.of());
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        Throwable rootCause = getRootCause(e);
+
+        if (rootCause instanceof InvalidEnumException cause) {
+            return new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+                    cause.getMessage(),
+                    List.of());
+        }
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+                "Invalid request payload",
+                List.of());
+    }
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleNonTreatedExceptions(RuntimeException e){
@@ -74,5 +92,13 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "An unexpected error occurred, contact the admin.",
                 List.of());
+    }
+
+    private Throwable getRootCause(Throwable ex) {
+        Throwable cause = ex;
+        while (cause.getCause() != null && cause.getCause() != cause) {
+            cause = cause.getCause();
+        }
+        return cause;
     }
 }
