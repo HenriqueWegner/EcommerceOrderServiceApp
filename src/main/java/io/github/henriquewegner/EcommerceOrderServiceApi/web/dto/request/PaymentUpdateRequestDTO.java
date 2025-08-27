@@ -13,6 +13,5 @@ public record PaymentUpdateRequestDTO(
         String cardToken,
         @NotNull(message = "Campo obrigatorio.")
         PaymentStatus status
-
 ) {
 }

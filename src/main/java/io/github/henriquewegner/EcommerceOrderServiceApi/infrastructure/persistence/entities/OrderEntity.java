@@ -43,6 +43,9 @@ public class OrderEntity {
     @Column(name = "status")
     private OrderStatus status;
 
+    @Embedded
+    private ShippingAddressValueObject shippingAddress;
+
     @CreatedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;

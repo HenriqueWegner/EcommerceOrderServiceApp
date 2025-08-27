@@ -4,6 +4,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.CustomerRequestDTO;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerUseCaseImpl implements io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase {
+public class CustomerUseCaseImpl implements CustomerUseCase {
 
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;

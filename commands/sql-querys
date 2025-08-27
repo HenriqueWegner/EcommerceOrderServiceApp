@@ -8,12 +8,20 @@ create table customers (
 
 create table orders (
     id uuid primary key,
-    created_at timestamp,
-    updated_at timestamp,
+    created_at timestamp default now(),
+    updated_at timestamp default now(),
     currency varchar(10),
-    idempotency_key varchar(255),
     status varchar(50),
-    customer_id uuid,
+    customer_id uuid not null,
+    cep varchar(20),
+    street varchar(255),
+    neighborhood varchar(255),
+    city varchar(255),
+    state varchar(100),
+    uf varchar(2),
+    number varchar(20),
+    complement varchar(255),
+    idempotency_key varchar(255),
     constraint fk_orders_customer foreign key (customer_id) references customers(id)
 );
 
@@ -35,3 +43,4 @@ create table payments (
     amount numeric(18,2),
     constraint fk_payment_order foreign key (order_id) references orders(id)
 );
+

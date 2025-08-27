@@ -7,7 +7,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.Custom
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = ShippingAddressMapper.class)
 public interface CustomerMapper {
 
     Customer toDomain(CustomerRequestDTO dto);
