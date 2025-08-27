@@ -1,6 +1,5 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.application.scheduler;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.application.util.JsonUtil;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.publisher.EventPublisher;

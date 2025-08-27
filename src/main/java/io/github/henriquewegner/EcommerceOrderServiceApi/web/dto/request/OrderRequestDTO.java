@@ -1,6 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Currency;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -11,17 +12,21 @@ import java.util.List;
 public record OrderRequestDTO(
 
         @UUID
-        @NotNull(message = "Campo obrigatorio.")
+        @NotNull(message = "Obligatory field.")
         String customerId,
         @NotEmpty
-        @NotNull(message = "Campo obrigatorio.")
+        @NotNull(message = "Obligatory field.")
+        @Valid
         List<ItemRequestDTO> items,
-        @NotNull(message = "Campo obrigatorio.")
+        @NotNull(message = "Obligatory field.")
         Currency currency,
-        @NotNull(message = "Campo obrigatorio.")
+        @NotNull(message = "Obligatory field.")
+        @Valid
         PaymentRequestDTO payment,
-        @NotNull(message = "Campo obrigatorio.")
+        @NotNull(message = "Obligatory field.")
+        @Valid
         ShippingAddressDTO shippingAddress,
-        @NotBlank(message = "Campo obrigatorio.")
+        @UUID
+        @NotBlank(message = "Obligatory field.")
         String idempotencyKey){
 }
