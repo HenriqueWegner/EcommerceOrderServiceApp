@@ -19,7 +19,6 @@ public class OutboxScheduler {
 
     private final OutboxRepository outboxRepository;
     private final EventPublisher publisher;
-    private final JsonUtil jsonUtil;
 
     @Scheduled(fixedDelay = 20000)
     public void publishOutboxEvents() {

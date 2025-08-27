@@ -13,6 +13,7 @@ public record OrdersResponseDTO(
         Currency currency,
         PaymentResponseDTO payment,
         OrderStatus status,
+        ShippingAddressResponseDTO shippingAddress,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         String idempotencyKey
