@@ -31,6 +31,20 @@ spring:
       payment-event: payment-events
       payment-update: payment-updates
       payment-update-dlq: payment-updates-dlq
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+
+security:
+  roles:
+    admin-access: ADMIN
+    user-access: USER
+    all-access: ADMIN,USER
+
 
 api:
   url:

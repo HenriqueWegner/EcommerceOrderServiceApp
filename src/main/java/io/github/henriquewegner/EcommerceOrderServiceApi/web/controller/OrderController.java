@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -22,6 +23,7 @@ public class OrderController {
     private final OrderUseCase orderUseCase;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole(@environment.getProperty('security.roles.all-access').split(','))")
     public ResponseEntity<CreatedOrderResponseDTO> save(@RequestBody @Valid OrderRequestDTO orderRequestDTO){
         log.info("Creating new order for customer: {}", orderRequestDTO.customerId());
 
@@ -31,6 +33,7 @@ public class OrderController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole(@environment.getProperty('security.roles.all-access').split(','))")
     public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable("id") String id){
         log.info("Finding order for id: {}", id);
 
@@ -40,6 +43,7 @@ public class OrderController {
     }
 
     @PatchMapping("{id}/payment")
+    @PreAuthorize("hasAnyRole(@environment.getProperty('security.roles.all-access').split(','))")
     public ResponseEntity<Void> updatePayment(@PathVariable("id") String id,
                                               @RequestBody @Valid PaymentUpdateRequestDTO paymentUpdateRequestDTO){
         log.info("Updating payment for id: {}", id);
