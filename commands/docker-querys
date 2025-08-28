@@ -3,6 +3,7 @@ docker network create ecommerce-network
 
 #Create db
 docker run --name ecommercedb -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=ecommerce -p 5433:5432 -d --network ecommerce-network postgres:16.3
+docker run --name authorizationserverdb -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=authorizationserver -p 5436:5432 -d --network ecommerce-network postgres:16.3
 
 #Create pgadmin4
 docker run --name pgadmin4 -e PGADMIN_DEFAULT_EMAIL=admin@admin.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 15432:80 -d --network ecommerce-network dpage/pgadmin4:8.9

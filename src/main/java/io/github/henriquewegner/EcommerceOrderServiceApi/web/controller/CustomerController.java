@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -22,6 +23,7 @@ public class CustomerController implements GenericController{
     private final CustomerUseCase customerUseCase;
 
     @PostMapping
+    @PreAuthorize("hasRole(@environment.getProperty('security.roles.admin-access'))")
     public ResponseEntity<Void> save(@RequestBody @Valid CustomerRequestDTO customerRequestDTO){
         log.info("Creating new customer named: {}", customerRequestDTO.name());
 
@@ -32,6 +34,7 @@ public class CustomerController implements GenericController{
     }
 
     @GetMapping("{id}/orders")
+    @PreAuthorize("hasRole(@environment.getProperty('security.roles.admin-access'))")
     public ResponseEntity<CustomerOrdersResponseDTO> findCustomerOrders(
             @PathVariable("id") String id){
 
