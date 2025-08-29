@@ -12,5 +12,4 @@ public interface OrderRepositoryJpa extends JpaRepository<OrderEntity, UUID>{
 
     List<OrderEntity> findByCustomer(CustomerEntity customerEntity);
 
-    Optional<OrderEntity> findByIdempotencyKey(String idempotencyKey);
 }

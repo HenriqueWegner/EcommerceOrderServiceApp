@@ -2,7 +2,6 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persist
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.Currency;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,9 +57,6 @@ public class OrderEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "idempotency_key")
-    private String idempotencyKey;
-
     @PrePersist
     @PreUpdate
     public void linkChildren() {
@@ -81,8 +77,7 @@ public class OrderEntity {
                 "id=" + id +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", idempotencyKey='" + idempotencyKey + '\'' +
+                ", updatedAt=" + updatedAt + '\'' +
                 '}';
     }
 

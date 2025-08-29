@@ -27,7 +27,6 @@ public class OrderValidator {
     }
 
     private void validateOrder(Order order){
-        checkIdempotencyKey(order.getIdempotencyKey());
     }
 
     private void validateItems(OrderItem orderItem){
@@ -36,13 +35,6 @@ public class OrderValidator {
 
     private void validatePayment(Payment payment){
 
-    }
-
-    public void checkIdempotencyKey(String idempotencyKey){
-        Optional<OrderEntity> entity = orderRepository.findByIdempotencyKey(idempotencyKey);
-        if(entity.isPresent()){
-            throw new DuplicatedRegistryException("This order has already been processed.");
-        }
     }
 
     public void validateUnitPrice(BigDecimal unitPrice){

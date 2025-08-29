@@ -15,5 +15,4 @@ public interface OrderRepository{
 
     Optional<OrderEntity> findById(UUID id);
 
-    Optional<OrderEntity> findByIdempotencyKey(String idempotencyKey);
 }

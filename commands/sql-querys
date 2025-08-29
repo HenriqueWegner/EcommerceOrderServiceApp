@@ -21,7 +21,6 @@ create table orders (
     uf varchar(2),
     number varchar(20),
     complement varchar(255),
-    idempotency_key varchar(255),
     constraint fk_orders_customer foreign key (customer_id) references customers(id)
 );
 
@@ -55,3 +54,11 @@ create table shippings (
     constraint fk_shipping_order foreign key (order_id) references orders(id)
 );
 
+create table orders_idempotency (
+    customer_id uuid not null,
+    idempotency_key varchar(100) not null,
+    request_hash varchar(64) not null,
+    response jsonb not null,
+    created_at timestamptz default now(),
+    primary key(customer_id, idempotency_key)
+);
