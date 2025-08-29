@@ -12,6 +12,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.factories.OutboxEventEntityFactory;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
@@ -30,8 +31,8 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.PaymentMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -56,10 +57,11 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
 
     @Override
+    @Transactional
     public CreatedOrderResponseDTO createOrder(OrderRequestDTO orderDTO) {
 
-        String hash = String.valueOf(hash(orderDTO));
-        Optional<CreatedOrderResponseDTO> alreadyExistsResponse = checkIdempotency(orderDTO, hash);
+        String requestHash = String.valueOf(hash(orderDTO));
+        Optional<CreatedOrderResponseDTO> alreadyExistsResponse = checkIdempotency(orderDTO, requestHash);
 
         if(alreadyExistsResponse.isPresent()){
             return alreadyExistsResponse.get();
@@ -71,34 +73,33 @@ public class OrderUseCaseImpl implements OrderUseCase {
         saveOutboxEvents(savedEntity);
 
         CreatedOrderResponseDTO response = orderMapper.orderEntityToCreatedOrderResponseDTO(savedEntity);
-        saveIdempotency(orderDTO,response,hash);
+        saveIdempotency(orderDTO,response,requestHash);
 
-        return orderMapper.orderEntityToCreatedOrderResponseDTO(savedEntity);
+        return response;
     }
 
 
     @Override
-    public OrderResponseDTO findOrder(String id) {
+    public Optional<OrderResponseDTO> findOrder(String id) {
 
         return orderRepository.findById(UUID.fromString(id))
-                .map(orderMapper::toDto)
-                .orElse(null);
+                .map(orderMapper::toDto);
     }
 
     @Override
-    public boolean updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
+    @Transactional
+    public Optional<OrderResponseDTO> updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
 
         return orderRepository.findById(UUID.fromString(id))
                 .map(orderEntity -> {
                     Order order = prepareOrderPayment(paymentUpdateRequestDTO, orderEntity);
-                    orderRepository.save(order);
+                    OrderEntity saved = orderRepository.save(order);
 
-                    return Boolean.TRUE;
-                })
-                .orElse(Boolean.FALSE);
+                    return orderMapper.toDto(saved);
+                });
     }
 
-    private Optional<CreatedOrderResponseDTO> checkIdempotency(OrderRequestDTO orderDTO, String hash) {
+    private Optional<CreatedOrderResponseDTO> checkIdempotency(OrderRequestDTO orderDTO, String requestHash) {
 
         Optional<OrderIdempotencyEntity> existing = idempotencyRepository
                 .findByIdCustomerIdAndIdIdempotencyKey(
@@ -106,7 +107,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
                         orderDTO.idempotencyKey());
 
         if (existing.isPresent()) {
-            if (!existing.get().getRequestHash().equals(hash)) {
+            if (!existing.get().getRequestHash().equals(requestHash)) {
                 throw new DuplicatedRegistryException("Request with the same idempotencyKey but different payload!");
             }
 
@@ -161,17 +162,15 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
     private void saveOutboxEvents(OrderEntity orderEntity){
 
-        OutboxEventEntity orderCreatedEvent = new OutboxEventEntity();
-        orderCreatedEvent.setAggregateId(orderEntity.getId().toString());
-        orderCreatedEvent.setEventType(EventType.ORDER_CREATED);
-        orderCreatedEvent.setPayload(orderMapper.toEvent(orderEntity));
-        outboxRepository.save(orderCreatedEvent);
+        OutboxEventEntity orderCreatedEvent = OutboxEventEntityFactory.create(
+                orderEntity.getId().toString(),
+                EventType.ORDER_CREATED,
+                orderMapper.toEvent(orderEntity));
 
-        OutboxEventEntity paymentEvent = new OutboxEventEntity();
-        paymentEvent.setAggregateId(orderEntity.getId().toString());
-        paymentEvent.setEventType(EventType.PAYMENT_EVENT);
-        paymentEvent.setPayload(paymentMapper.toEvent(orderEntity.getPayment()));
-        outboxRepository.save(paymentEvent);
+        OutboxEventEntity paymentEvent = OutboxEventEntityFactory.create(
+                orderEntity.getId().toString(),
+                EventType.PAYMENT_EVENT,
+                paymentMapper.toEvent(orderEntity.getPayment()));
 
         outboxRepository.save(orderCreatedEvent);
         outboxRepository.save(paymentEvent);
@@ -184,7 +183,6 @@ public class OrderUseCaseImpl implements OrderUseCase {
         entity.setResponse(stringResponse);
 
         idempotencyRepository.save(entity);
-
     }
 
     private Order prepareOrderPayment(PaymentUpdateRequestDTO paymentUpdateRequestDTO,
