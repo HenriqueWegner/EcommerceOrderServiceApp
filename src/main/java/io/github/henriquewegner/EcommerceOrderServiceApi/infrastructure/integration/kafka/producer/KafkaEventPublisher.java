@@ -54,6 +54,11 @@ public class KafkaEventPublisher implements EventPublisher {
     }
 
     private String selectTopic(EventType eventType) {
+
+        if (eventType == null) {
+            throw new IllegalArgumentException("EventType must not be null");
+        }
+
         String topic;
         switch(eventType){
             case ORDER_CREATED : topic = ORDER_CREATED;
