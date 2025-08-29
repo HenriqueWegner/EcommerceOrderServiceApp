@@ -37,19 +37,19 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable("id") String id){
         log.info("Finding order for id: {}", id);
 
-        return Optional.ofNullable(orderUseCase.findOrder(id))
+        return orderUseCase.findOrder(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(ResponseEntity.notFound()::build);
     }
 
     @PatchMapping("{id}/payment")
     @PreAuthorize("hasAnyRole(@environment.getProperty('security.roles.all-access').split(','))")
-    public ResponseEntity<Void> updatePayment(@PathVariable("id") String id,
+    public ResponseEntity<Object> updatePayment(@PathVariable("id") String id,
                                               @RequestBody @Valid PaymentUpdateRequestDTO paymentUpdateRequestDTO){
         log.info("Updating payment for id: {}", id);
 
         return orderUseCase.updatePayment(id,paymentUpdateRequestDTO)
-                ? ResponseEntity.accepted().build()
-                : ResponseEntity.notFound().build();
+                .map(updated -> ResponseEntity.accepted().build())
+                .orElseGet(ResponseEntity.notFound()::build);
     }
 }

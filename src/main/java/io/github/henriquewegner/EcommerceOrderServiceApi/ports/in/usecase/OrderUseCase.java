@@ -5,11 +5,13 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.Payment
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 
+import java.util.Optional;
+
 public interface OrderUseCase {
 
     CreatedOrderResponseDTO createOrder(OrderRequestDTO orderDTO);
 
-    OrderResponseDTO findOrder(String id);
+    Optional<OrderResponseDTO> findOrder(String id);
 
-    boolean updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO);
+    Optional<OrderResponseDTO> updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO);
 }
