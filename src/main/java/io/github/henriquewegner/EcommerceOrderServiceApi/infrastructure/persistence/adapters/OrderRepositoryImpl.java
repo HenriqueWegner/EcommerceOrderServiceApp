@@ -37,11 +37,7 @@ public class OrderRepositoryImpl implements OrderRepository{
         return orderRepositoryJpa.findById(id);
     }
 
-    @Override
-    public Optional<OrderEntity> findByIdempotencyKey(String idempotencyKey){
 
-        return orderRepositoryJpa.findByIdempotencyKey(idempotencyKey);
-    }
 
 
 }

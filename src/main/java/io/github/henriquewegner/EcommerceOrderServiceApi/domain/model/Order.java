@@ -21,6 +21,5 @@ public class Order {
     private Shipping shipping;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String idempotencyKey;
 }
 

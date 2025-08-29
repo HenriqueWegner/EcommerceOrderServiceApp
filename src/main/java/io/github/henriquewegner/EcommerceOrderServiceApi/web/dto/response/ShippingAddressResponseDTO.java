@@ -1,7 +1,5 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
-
 public record ShippingAddressResponseDTO(
         String cep,
         String street,
