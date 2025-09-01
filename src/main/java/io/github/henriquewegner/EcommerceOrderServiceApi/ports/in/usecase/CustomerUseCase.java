@@ -11,4 +11,6 @@ public interface CustomerUseCase {
     UUID createCustomer(CustomerRequestDTO customerRequestDTO);
 
     Optional<CustomerOrdersResponseDTO> findCustomerOrders(String id);
+
+
 }

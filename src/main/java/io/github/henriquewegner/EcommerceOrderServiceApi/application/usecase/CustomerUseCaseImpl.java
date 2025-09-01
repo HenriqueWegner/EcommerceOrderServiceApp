@@ -7,6 +7,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.CustomerUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.CustomerRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerOrdersResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.CustomerMapper;
@@ -34,6 +35,8 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
 
         Customer customer = customerMapper.toDomain(customerRequestDTO);
 
+        checkIfCustomerExists(customer);
+
         CustomerEntity savedEntity = customerRepository.save(customer);
 
         return savedEntity.getId();
@@ -60,5 +63,13 @@ public class CustomerUseCaseImpl implements CustomerUseCase {
 
         return customerMapper.toDto(customer);
     }
+
+    private void checkIfCustomerExists(Customer customer) {
+        Optional<CustomerEntity> customerEntity = customerRepository.findByEmail(customer.getEmail());
+        if(customerEntity.isPresent()){
+            throw new DuplicatedRegistryException("This email has already been registered.");
+        }
+    }
+
 
 }

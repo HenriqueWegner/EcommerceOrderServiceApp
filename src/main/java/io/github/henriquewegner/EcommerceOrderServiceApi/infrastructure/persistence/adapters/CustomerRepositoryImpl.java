@@ -29,5 +29,10 @@ public class CustomerRepositoryImpl implements CustomerRepository{
         return customerRepositoryJpa.save(entity);
     }
 
-    
+    @Override
+    public Optional<CustomerEntity> findByEmail(String email) {
+        return customerRepositoryJpa.findByEmail(email);
+    }
+
+
 }
