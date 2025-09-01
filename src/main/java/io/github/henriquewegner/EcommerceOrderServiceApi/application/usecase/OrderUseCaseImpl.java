@@ -13,6 +13,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.factories.OutboxEventEntityFactory;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
@@ -54,6 +55,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
     private final OrderValidator orderValidator;
     private final AddressLookup addressLookup;
     private final ShippingQuotation shippingQuotation;
+    private final PaymentEventHandler paymentEventHandler;
 
 
     @Override
@@ -90,13 +92,10 @@ public class OrderUseCaseImpl implements OrderUseCase {
     @Transactional
     public Optional<OrderResponseDTO> updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO) {
 
-        return orderRepository.findById(UUID.fromString(id))
-                .map(orderEntity -> {
-                    Order order = prepareOrderPayment(paymentUpdateRequestDTO, orderEntity);
-                    OrderEntity saved = orderRepository.save(order);
+        Optional<OrderEntity> savedEntity = paymentEventHandler.handlePaymentUpdate(
+                UUID.fromString(id), paymentUpdateRequestDTO.status(), paymentUpdateRequestDTO.cardToken());
 
-                    return orderMapper.toDto(saved);
-                });
+        return savedEntity.map(orderMapper::toDto);
     }
 
     private Optional<CreatedOrderResponseDTO> checkIdempotency(OrderRequestDTO orderDTO, String requestHash) {

@@ -32,14 +32,11 @@ class PaymentEventHandlerImplTest {
     @Test
     void handlePaymentUpdate_shouldUpdatePaymentStatusAndCardToken() {
         UUID orderId = UUID.randomUUID();
-        PaymentEvent event = mock(PaymentEvent.class);
+        PaymentStatus statusSuccess = PaymentStatus.SUCCESS;
+        String cardToken = "tok_visa123";
+
         Order order = mock(Order.class);
         Payment payment = mock(Payment.class);
-
-        when(event.getId()).thenReturn(UUID.randomUUID());
-        PaymentOrderEvent paymentOrderEvent = mock(PaymentOrderEvent.class);
-        when(event.getOrder()).thenReturn(paymentOrderEvent);
-        when(paymentOrderEvent.getId()).thenReturn(orderId);
 
         OrderEntity orderEntity = mock(OrderEntity.class);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
@@ -47,27 +44,21 @@ class PaymentEventHandlerImplTest {
         when(order.getPayment()).thenReturn(payment);
         when(payment.getPaymentStatus()).thenReturn(PaymentStatus.PENDING);
 
-        when(event.getPaymentStatus()).thenReturn(PaymentStatus.SUCCESS);
-        when(event.getCardToken()).thenReturn("token123");
+        handler.handlePaymentUpdate(orderId,statusSuccess,cardToken);
 
-        handler.handlePaymentUpdate(event);
-
-        verify(payment).setPaymentStatus(PaymentStatus.SUCCESS);
-        verify(payment).setCardToken("token123");
+        verify(payment).setPaymentStatus(statusSuccess);
+        verify(payment).setCardToken(cardToken);
         verify(orderRepository).save(order);
     }
 
     @Test
     void handlePaymentUpdate_shouldNotUpdateIfAlreadyProcessed() {
         UUID orderId = UUID.randomUUID();
-        PaymentEvent event = mock(PaymentEvent.class);
+        PaymentStatus statusSuccess = PaymentStatus.SUCCESS;
+        PaymentStatus statusFailed = PaymentStatus.FAILED;
+        String cardToken = "tok_visa123";
         Order order = mock(Order.class);
         Payment payment = mock(Payment.class);
-        PaymentOrderEvent paymentOrderEvent = mock(PaymentOrderEvent.class);
-
-        when(event.getOrder()).thenReturn(paymentOrderEvent);
-        when(paymentOrderEvent.getId()).thenReturn(orderId);
-
         OrderEntity orderEntity = mock(OrderEntity.class);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
         when(orderMapper.toDomain(orderEntity)).thenReturn(order);
@@ -75,29 +66,30 @@ class PaymentEventHandlerImplTest {
 
         // Test for SUCCESS
         when(payment.getPaymentStatus()).thenReturn(PaymentStatus.SUCCESS);
-        handler.handlePaymentUpdate(event);
+        handler.handlePaymentUpdate(orderId,statusSuccess,cardToken);
         verify(orderRepository, never()).save(any());
 
         // Test for FAILED
         reset(payment, orderRepository);
         when(order.getPayment()).thenReturn(payment);
         when(payment.getPaymentStatus()).thenReturn(PaymentStatus.FAILED);
-        handler.handlePaymentUpdate(event);
+        handler.handlePaymentUpdate(orderId,statusFailed,cardToken);
         verify(orderRepository, never()).save(any());
     }
 
     @Test
     void handlePaymentUpdate_shouldDoNothingIfOrderNotFound() {
-        PaymentEvent event = mock(PaymentEvent.class);
-        Order order = mock(Order.class);
         UUID orderId = UUID.randomUUID();
+        PaymentStatus statusSuccess = PaymentStatus.SUCCESS;
+        String cardToken = "tok_visa123";
+        Order order = mock(Order.class);
         PaymentOrderEvent paymentOrderEvent = mock(PaymentOrderEvent.class);
-        when(event.getOrder()).thenReturn(paymentOrderEvent);
+
         when(paymentOrderEvent.getId()).thenReturn(orderId);
         when(order.getId()).thenReturn(orderId);
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        handler.handlePaymentUpdate(event);
+        handler.handlePaymentUpdate(orderId,statusSuccess,cardToken);
 
         verify(orderMapper, never()).toDomain(any(OrderEntity.class));
         verify(orderRepository, never()).save(any());
