@@ -14,7 +14,7 @@ public class KafkaOrderConsumer {
 
     @KafkaListener(topics = "${spring.kafka.topic.payment-update}", groupId = "my-group-id")
     public void consume(PaymentEvent event) {
-        handler.handlePaymentUpdate(event);
+        handler.handlePaymentUpdate(event.getId(),event.getPaymentStatus(), event.getCardToken());
     }
 
 }

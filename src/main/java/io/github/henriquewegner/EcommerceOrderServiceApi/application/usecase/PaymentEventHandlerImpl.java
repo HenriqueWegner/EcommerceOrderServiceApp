@@ -1,8 +1,9 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.application.usecase;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
@@ -10,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -21,31 +25,40 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
 
     @Override
     @Transactional
-    public void handlePaymentUpdate(PaymentEvent event) {
-        log.info("Handling payment update for payment: {}",event.getId());
+    public Optional<OrderEntity> handlePaymentUpdate(UUID id, PaymentStatus status, String cardToken) {
+        log.info("Handling payment update for payment: {}", id);
 
-        orderRepository.findById(event.getOrder().getId())
-                .ifPresent(orderEntity -> {
+       return orderRepository.findById(id)
+                .map(orderEntity -> {
                     Order order = orderMapper.toDomain(orderEntity);
                     PaymentStatus actualStatus = order.getPayment().getPaymentStatus();
 
                     if (actualStatus == PaymentStatus.SUCCESS || actualStatus == PaymentStatus.FAILED) {
                         log.info("Payment already processed with status: {}", actualStatus);
-                        return;
+                        return orderEntity;
                     }
 
-                    order = preparePayment(event, order);
-                    orderRepository.save(order);
+                    preparePayment(status, cardToken, order);
+                    prepareOrderStatus(status, order);
+                    return orderRepository.save(order);
                 });
     }
 
-
-    private Order preparePayment(PaymentEvent event, Order order) {
-        order.getPayment().setPaymentStatus(event.getPaymentStatus());
-        order.getPayment().setCardToken(event.getCardToken());
+    private Order preparePayment(PaymentStatus status, String cardToken, Order order) {
+        order.getPayment().setPaymentStatus(status);
+        order.getPayment().setCardToken(cardToken);
 
         return order;
     }
 
+    private Order prepareOrderStatus(PaymentStatus status, Order order) {
+        if(status.equals(PaymentStatus.SUCCESS)){
+            order.setStatus(OrderStatus.PAID);
+        }
+        if(status.equals(PaymentStatus.FAILED)){
+            order.setStatus(OrderStatus.FAILED_PAYMENT);
+        }
+        return order;
+    }
 
 }

@@ -5,6 +5,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.*;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
@@ -44,6 +45,7 @@ class OrderUseCaseImplTest {
     private AddressLookup addressLookup;
     private ShippingQuotation shippingQuotation;
     private OrderUseCaseImpl orderUseCase;
+    private PaymentEventHandler paymentEventHandler;
 
     @BeforeEach
     void setUp(){
@@ -58,6 +60,7 @@ class OrderUseCaseImplTest {
         orderValidator = mock(OrderValidator.class);
         addressLookup = mock(AddressLookup.class);
         shippingQuotation = mock(ShippingQuotation.class);
+        paymentEventHandler = mock(PaymentEventHandler.class);
         orderUseCase = new OrderUseCaseImpl(
                 orderRepository,
                 customerRepository,
@@ -69,7 +72,8 @@ class OrderUseCaseImplTest {
                 orderIdempotencyMapper,
                 orderValidator,
                 addressLookup,
-                shippingQuotation
+                shippingQuotation,
+                paymentEventHandler
         );
     }
     @Test
@@ -156,25 +160,20 @@ class OrderUseCaseImplTest {
     void updatePayment_shouldUpdatePaymentAndReturnOrderResponseDTO_whenOrderExists() {
         String orderId = UUID.randomUUID().toString();
         PaymentUpdateRequestDTO paymentUpdateRequestDTO = mock(PaymentUpdateRequestDTO.class);
-        OrderEntity orderEntity = mock(OrderEntity.class);
         Order order = mock(Order.class);
         OrderEntity savedEntity = mock(OrderEntity.class);
         OrderResponseDTO responseDTO = mock(OrderResponseDTO.class);
         Payment payment = mock(Payment.class);
 
         when(order.getPayment()).thenReturn(payment);
-        when(orderRepository.findById(UUID.fromString(orderId))).thenReturn(Optional.of(orderEntity));
-        when(orderMapper.toDomain(orderEntity)).thenReturn(order);
-        when(orderRepository.save(order)).thenReturn(savedEntity);
         when(orderMapper.toDto(savedEntity)).thenReturn(responseDTO);
+        when(paymentEventHandler.handlePaymentUpdate(any(),any(),any())).thenReturn(Optional.of(savedEntity));
 
         Optional<OrderResponseDTO> result = orderUseCase.updatePayment(orderId, paymentUpdateRequestDTO);
 
         assertTrue(result.isPresent());
         assertEquals(responseDTO, result.get());
-        verify(orderRepository).findById(UUID.fromString(orderId));
-        verify(orderMapper).toDomain(orderEntity);
-        verify(orderRepository).save(order);
+        verify(paymentEventHandler).handlePaymentUpdate(any(),any(),any());
         verify(orderMapper).toDto(savedEntity);
     }
 
@@ -183,14 +182,12 @@ class OrderUseCaseImplTest {
         String orderId = UUID.randomUUID().toString();
         PaymentUpdateRequestDTO paymentUpdateRequestDTO = mock(PaymentUpdateRequestDTO.class);
 
-        when(orderRepository.findById(UUID.fromString(orderId))).thenReturn(Optional.empty());
+        when(paymentEventHandler.handlePaymentUpdate(any(),any(),any())).thenReturn(Optional.empty());
 
         Optional<OrderResponseDTO> result = orderUseCase.updatePayment(orderId, paymentUpdateRequestDTO);
 
         assertFalse(result.isPresent());
-        verify(orderRepository).findById(UUID.fromString(orderId));
-        verify(orderMapper, never()).toDomain(any(OrderEntity.class));
-        verify(orderRepository, never()).save(any());
+        verify(paymentEventHandler).handlePaymentUpdate(any(),any(),any());
         verify(orderMapper, never()).toDto(any());
     }
 
