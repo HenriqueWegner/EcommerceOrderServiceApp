@@ -8,7 +8,6 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.ShippingAddress;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
@@ -16,8 +15,8 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.CustomerApi;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderIdempotencyRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
@@ -35,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,16 +45,15 @@ import static java.util.Objects.hash;
 public class OrderUseCaseImpl implements OrderUseCase {
 
     private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
     private final OutboxRepository outboxRepository;
     private final OrderIdempotencyRepository idempotencyRepository;
     private final OrderMapper orderMapper;
-    private final CustomerMapper customerMapper;
     private final PaymentMapper paymentMapper;
     private final OrderIdempotencyMapper orderIdempotencyMapper;
     private final OrderValidator orderValidator;
     private final AddressLookup addressLookup;
     private final ShippingQuotation shippingQuotation;
+    private final CustomerApi customerApi;
     private final PaymentEventHandler paymentEventHandler;
 
 
@@ -86,6 +85,13 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
         return orderRepository.findById(UUID.fromString(id))
                 .map(orderMapper::toDto);
+    }
+
+    @Override
+    public List<OrderResponseDTO> findOrdersByCustomer(String customerId) {
+        Customer customer = findCustomer(customerId);
+        List<OrderEntity> customerList = orderRepository.findByCustomer(customer);
+        return orderMapper.entityListToDtoList(customerList);
     }
 
     @Override
@@ -121,11 +127,8 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
     private Customer findCustomer(String customerId){
 
-        CustomerEntity customerEntity = customerRepository
-                .findById(UUID.fromString(customerId))
+        return Optional.ofNullable(customerApi.findCustomer(customerId))
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found."));
-
-        return customerMapper.toDomain(customerEntity);
     }
 
     private Order prepareOrder(OrderRequestDTO orderDTO, Customer customer){
@@ -156,7 +159,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
     private void setInitialStatus(Order order){
 
         order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
-        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        order.setStatus(OrderStatus.CREATED);
     }
 
     private void saveOutboxEvents(OrderEntity orderEntity){

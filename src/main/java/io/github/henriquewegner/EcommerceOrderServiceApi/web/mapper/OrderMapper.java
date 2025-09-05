@@ -40,4 +40,6 @@ public interface OrderMapper {
     CreatedOrderResponseDTO orderEntityToCreatedOrderResponseDTO(OrderEntity orderEntity);
 
     OrderCreatedEvent toEvent(OrderEntity entity);
+
+    List<OrderResponseDTO> entityListToDtoList(List<OrderEntity> entityList);
 }

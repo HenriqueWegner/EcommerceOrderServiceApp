@@ -17,7 +17,6 @@ public record OrderResponseDTO(
         ShippingResponseDTO shipping,
         OrderStatus status,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        String idempotencyKey
+        LocalDateTime updatedAt
 ) {
 }

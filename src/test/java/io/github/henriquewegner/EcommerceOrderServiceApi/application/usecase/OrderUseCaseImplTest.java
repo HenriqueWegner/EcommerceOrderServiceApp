@@ -6,10 +6,8 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderIdempotencyRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
