@@ -2,9 +2,10 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums;
 
 public enum OrderStatus {
     CANCELLED,
-    FAILED_RESERVATION,
+    DELIVERED,
+    SHIPPED,
+    PREPARING_ORDER,
     FAILED_PAYMENT,
-    CONFIRMED,
     PAID,
-    PENDING_PAYMENT
+    CREATED
 }

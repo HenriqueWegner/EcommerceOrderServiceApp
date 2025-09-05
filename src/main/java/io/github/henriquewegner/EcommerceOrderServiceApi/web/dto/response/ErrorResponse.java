@@ -17,4 +17,10 @@ public record ErrorResponse(
     public static ErrorResponse unprocessableEntity(String mensagem){
         return new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), mensagem, List.of());
     }
+
+    public static ErrorResponse internalServerError(String mensagem){
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), mensagem, List.of());
+    }
+
+
 }

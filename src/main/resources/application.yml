@@ -35,9 +35,17 @@ spring:
     oauth2:
       client:
         registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+          customer-client:
+            client-id: ${CUSTOMER_CLIENT_ID}
+            client-secret: ${CUSTOMER_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            provider: my-auth-server
+        provider:
+          my-auth-server:
+            token-uri: http://localhost:9000/oauth2/token
+        resourceserver:
+          jwt:
+            jwk-set-uri: http://localhost:9000/.well-known/jwks.json
 security:
   roles:
     admin-access: ADMIN
@@ -47,6 +55,7 @@ api:
   url:
     via-cep: "https://viacep.com.br/ws/%s/json/"
     shipping-quotation: "https://showcommerce.com.br/api/calculadora-frete/"
+    customers: "http://localhost:8081/customers/"
 logging:
   level:
     org.springframework.security: DEBUG

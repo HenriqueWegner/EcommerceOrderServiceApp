@@ -1,6 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.common;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.CustomerApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidEnumException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidFieldException;
@@ -42,6 +43,12 @@ public class GlobalExceptionHandler {
                 errorsList);
     }
 
+    @ExceptionHandler(CustomerApiException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleCustomerApiException(CustomerApiException e) {
+        return ErrorResponse.internalServerError(e.getMessage());
+    }
+
     @ExceptionHandler(DuplicatedRegistryException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicatedRegistryException(DuplicatedRegistryException e) {
@@ -66,9 +73,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleApiExceptions(RuntimeException e){
         log.error("Unexpected error: {}", e);
-        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                e.getMessage(),
-                List.of());
+        return ErrorResponse.internalServerError(e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

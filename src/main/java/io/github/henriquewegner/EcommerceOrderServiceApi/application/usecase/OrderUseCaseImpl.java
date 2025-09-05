@@ -8,6 +8,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.ShippingAddress;
+import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integration.apis.CustomerApiImpl;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
@@ -16,6 +17,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.CustomerApi;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.CustomerRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderIdempotencyRepository;
@@ -55,6 +57,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
     private final OrderValidator orderValidator;
     private final AddressLookup addressLookup;
     private final ShippingQuotation shippingQuotation;
+    private final CustomerApi customerApi;
     private final PaymentEventHandler paymentEventHandler;
 
 
@@ -119,13 +122,19 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
     }
 
+//    private Customer findCustomer(String customerId){
+//
+//        CustomerEntity customerEntity = customerRepository
+//                .findById(UUID.fromString(customerId))
+//                .orElseThrow(() -> new EntityNotFoundException("Customer not found."));
+//
+//        return customerMapper.toDomain(customerEntity);
+//    }
+
     private Customer findCustomer(String customerId){
 
-        CustomerEntity customerEntity = customerRepository
-                .findById(UUID.fromString(customerId))
+        return Optional.ofNullable(customerApi.findCustomer(customerId))
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found."));
-
-        return customerMapper.toDomain(customerEntity);
     }
 
     private Order prepareOrder(OrderRequestDTO orderDTO, Customer customer){
@@ -156,7 +165,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
     private void setInitialStatus(Order order){
 
         order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
-        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        order.setStatus(OrderStatus.CREATED);
     }
 
     private void saveOutboxEvents(OrderEntity orderEntity){
