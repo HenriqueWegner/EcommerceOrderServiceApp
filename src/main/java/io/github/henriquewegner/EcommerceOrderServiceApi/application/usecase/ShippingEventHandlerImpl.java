@@ -7,7 +7,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.factories.OutboxEventEntityFactory;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.ShippingEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.StatusException;
@@ -17,29 +17,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentEventHandlerImpl implements PaymentEventHandler {
+public class ShippingEventHandlerImpl implements ShippingEventHandler {
+
+    private final String STATUS_EXCEPTION_MESSAGE = "This status can not be modified by this status.";
+    private static final List<OrderStatus> UNAVAILABLE_STATUSES = List.of(
+            OrderStatus.CREATED,
+            OrderStatus.CANCELLED,
+            OrderStatus.DELIVERED,
+            OrderStatus.FAILED_PAYMENT
+    );
 
     private final OrderRepository orderRepository;
     private final OutboxRepository outboxRepository;
     private final OrderMapper orderMapper;
 
+
     @Override
     @Transactional
-    public Optional<OrderEntity> handlePaymentUpdate(UUID id, PaymentStatus status, String cardToken) {
-        log.info("Handling payment update for order: {}", id);
-
-       return orderRepository.findById(id)
+    public Optional<OrderEntity> handleShippingEvent(UUID id, OrderStatus status) {
+        log.info("Handling shipping update for order: {}", id);
+        return orderRepository.findById(id)
                 .map(orderEntity -> {
                     Order order = orderMapper.toDomain(orderEntity);
-                    verifyIfProcessed(order);
-                    preparePayment(status, cardToken, order);
-                    prepareOrderStatus(status, order);
+                    validateStatusTransition(order.getStatus(), status);
+                    order.setStatus(status);
                     OrderEntity savedOrderEntity = orderRepository.save(order);
                     saveOutboxEvent(savedOrderEntity);
 
@@ -47,28 +55,21 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
                 });
     }
 
-    private void verifyIfProcessed(Order order) {
-        PaymentStatus actualStatus = order.getPayment().getPaymentStatus();
-        if (actualStatus == PaymentStatus.SUCCESS || actualStatus == PaymentStatus.FAILED) {
-            log.info("Payment already processed with status: {}", actualStatus);
-            throw new StatusException("Payment has already been processed.");
+    private void validateStatusTransition(OrderStatus current, OrderStatus target) {
+        if (UNAVAILABLE_STATUSES.contains(current) || current == target) {
+            throw new StatusException(STATUS_EXCEPTION_MESSAGE);
+        }
+        if (current == OrderStatus.PAID && target != OrderStatus.PREPARING_ORDER) {
+            throw new StatusException(STATUS_EXCEPTION_MESSAGE);
+        }
+        if (current == OrderStatus.PREPARING_ORDER && target != OrderStatus.SHIPPED) {
+            throw new StatusException(STATUS_EXCEPTION_MESSAGE);
+        }
+        if (current == OrderStatus.SHIPPED && target != OrderStatus.DELIVERED) {
+            throw new StatusException(STATUS_EXCEPTION_MESSAGE);
         }
     }
 
-    private void preparePayment(PaymentStatus status, String cardToken, Order order) {
-        order.getPayment().setPaymentStatus(status);
-        order.getPayment().setCardToken(cardToken);
-
-    }
-
-    private void prepareOrderStatus(PaymentStatus status, Order order) {
-        if(status.equals(PaymentStatus.SUCCESS)){
-            order.setStatus(OrderStatus.PAID);
-        }
-        if(status.equals(PaymentStatus.FAILED)){
-            order.setStatus(OrderStatus.FAILED_PAYMENT);
-        }
-    }
 
     private void saveOutboxEvent(OrderEntity orderEntity) {
         OutboxEventEntity orderCreatedEvent = OutboxEventEntityFactory.create(
@@ -78,5 +79,4 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
 
         outboxRepository.save(orderCreatedEvent);
     }
-
 }

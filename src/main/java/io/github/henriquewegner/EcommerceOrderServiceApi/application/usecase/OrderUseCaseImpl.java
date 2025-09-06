@@ -166,7 +166,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
         OutboxEventEntity orderCreatedEvent = OutboxEventEntityFactory.create(
                 orderEntity.getId().toString(),
-                EventType.ORDER_CREATED,
+                EventType.ORDER_EVENT,
                 orderMapper.toEvent(orderEntity));
 
         OutboxEventEntity paymentEvent = OutboxEventEntityFactory.create(
@@ -185,16 +185,6 @@ public class OrderUseCaseImpl implements OrderUseCase {
         entity.setResponse(stringResponse);
 
         idempotencyRepository.save(entity);
-    }
-
-    private Order prepareOrderPayment(PaymentUpdateRequestDTO paymentUpdateRequestDTO,
-                                      OrderEntity orderEntity){
-
-        Order order = orderMapper.toDomain(orderEntity);
-        order.getPayment().setPaymentStatus(paymentUpdateRequestDTO.status());
-        order.getPayment().setCardToken(paymentUpdateRequestDTO.cardToken());
-
-        return order;
     }
 
 }

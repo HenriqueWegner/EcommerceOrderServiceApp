@@ -24,13 +24,14 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.value.default.type: io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent
         spring.json.trusted.packages: "*"
     topic:
       order-event: order-events
       payment-event: payment-events
       payment-update: payment-updates
       payment-update-dlq: payment-updates-dlq
+      shipping-update: shipping-updates
+      shipping-update-dlq: shipping-updates-dlq
   security:
     oauth2:
       client:
@@ -59,5 +60,6 @@ api:
 logging:
   level:
     org.springframework.security: DEBUG
+    root: ERROR
 springdoc:
   override-with-generic-response: false

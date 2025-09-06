@@ -25,12 +25,11 @@ public class OutboxScheduler {
 
         List<OutboxEventEntity> events = outboxRepository.findByProcessed(Boolean.FALSE);
 
-
         for (OutboxEventEntity outboxEvent : events) {
-            if (outboxEvent.getEventType().equals(EventType.ORDER_CREATED)) {
+            if (outboxEvent.getEventType().equals(EventType.ORDER_EVENT)) {
                 publisher.publishMessage(outboxEvent.getPayload(),
                         outboxEvent.getAggregateId(),
-                        EventType.ORDER_CREATED,
+                        EventType.ORDER_EVENT,
                         outboxEvent);
             }
             if (outboxEvent.getEventType().equals(EventType.PAYMENT_EVENT)) {

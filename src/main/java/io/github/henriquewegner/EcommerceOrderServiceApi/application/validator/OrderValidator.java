@@ -17,7 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrderValidator {
 
-    private final OrderRepository orderRepository;
 
     public void validate(Order order){
 
