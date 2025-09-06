@@ -8,9 +8,15 @@ docker exec -it kafka-broker kafka-topics --create --topic payment-updates --boo
 
 docker exec -it kafka-broker kafka-topics --create --topic payment-updates-dlq --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 
+docker exec -it kafka-broker kafka-topics --create --topic shipping-updates --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+docker exec -it kafka-broker kafka-topics --create --topic shipping-updates-dlq --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
 #Create message
 
 docker exec -it kafka-broker kafka-console-producer --topic payment-updates --bootstrap-server localhost:9092
+
+docker exec -it kafka-broker kafka-console-producer --topic shipping-updates --bootstrap-server localhost:9092
 
 #Consume message
 
@@ -19,4 +25,6 @@ docker exec -it kafka-broker kafka-console-consumer --topic order-events --boots
 docker exec -it kafka-broker kafka-console-consumer --topic payment-events --bootstrap-server localhost:9092 --from-beginning
 
 docker exec -it kafka-broker kafka-console-consumer --topic payment-updates-dlq --bootstrap-server localhost:9092 --from-beginning
+
+docker exec -it kafka-broker kafka-console-consumer --topic shipping-updates-dlq --bootstrap-server localhost:9092 --from-beginning
 

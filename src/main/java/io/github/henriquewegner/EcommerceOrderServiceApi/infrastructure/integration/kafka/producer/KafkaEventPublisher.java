@@ -1,8 +1,6 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integration.kafka.producer;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.OrderCreatedEvent;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.event.PaymentEvent;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.publisher.EventPublisher;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
@@ -21,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class KafkaEventPublisher implements EventPublisher {
 
     @Value("${spring.kafka.topic.order-event}")
-    private String ORDER_CREATED;
+    private String ORDER_EVENT;
     @Value("${spring.kafka.topic.payment-event}")
     private String PAYMENT_EVENT;
 
@@ -61,7 +59,7 @@ public class KafkaEventPublisher implements EventPublisher {
 
         String topic;
         switch(eventType){
-            case ORDER_CREATED : topic = ORDER_CREATED;
+            case ORDER_EVENT : topic = ORDER_EVENT;
                 break;
             case PAYMENT_EVENT : topic = PAYMENT_EVENT;
                 break;
