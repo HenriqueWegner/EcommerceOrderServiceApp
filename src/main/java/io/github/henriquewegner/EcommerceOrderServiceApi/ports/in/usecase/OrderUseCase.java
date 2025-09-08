@@ -17,4 +17,6 @@ public interface OrderUseCase {
     List<OrderResponseDTO> findOrdersByCustomer(String customerId);
 
     Optional<OrderResponseDTO> updatePayment(String id, PaymentUpdateRequestDTO paymentUpdateRequestDTO);
+
+    Optional<OrderResponseDTO> cancelOrder(String id);
 }

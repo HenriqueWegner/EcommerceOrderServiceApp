@@ -71,7 +71,8 @@ public class OrderUseCaseImpl implements OrderUseCase {
         Customer customer = findCustomer(orderDTO.customerId());
         Order order = prepareOrder(orderDTO, customer);
         OrderEntity savedEntity = orderRepository.save(order);
-        saveOutboxEvents(savedEntity);
+        saveOutboxOrderEvent(savedEntity);
+        saveOutboxPaymentEvent(savedEntity);
 
         CreatedOrderResponseDTO response = orderMapper.orderEntityToCreatedOrderResponseDTO(savedEntity);
         saveIdempotency(orderDTO,response,requestHash);
@@ -102,6 +103,26 @@ public class OrderUseCaseImpl implements OrderUseCase {
                 UUID.fromString(id), paymentUpdateRequestDTO.status(), paymentUpdateRequestDTO.cardToken());
 
         return savedEntity.map(orderMapper::toDto);
+    }
+
+    @Override
+    @Transactional
+    public Optional<OrderResponseDTO> cancelOrder(String id) {
+
+        return orderRepository.findById(UUID.fromString(id))
+                .map(orderEntity -> {
+
+                    Order order = orderMapper.toDomain(orderEntity);
+                    orderValidator.validateCancelling(order);
+
+                    order.setStatus(OrderStatus.CANCELLED);
+
+                    OrderEntity savedEntity = orderRepository.save(order);
+
+                    saveOutboxOrderEvent(savedEntity);
+
+                    return Optional.of(savedEntity).map(orderMapper::toDto);
+                }).orElse(Optional.empty());
     }
 
     private Optional<CreatedOrderResponseDTO> checkIdempotency(OrderRequestDTO orderDTO, String requestHash) {
@@ -162,23 +183,23 @@ public class OrderUseCaseImpl implements OrderUseCase {
         order.setStatus(OrderStatus.CREATED);
     }
 
-    private void saveOutboxEvents(OrderEntity orderEntity){
-
-        OutboxEventEntity orderCreatedEvent = OutboxEventEntityFactory.create(
+    private void saveOutboxEvent(OrderEntity orderEntity, EventType eventType, Object payload) {
+        OutboxEventEntity event = OutboxEventEntityFactory.create(
                 orderEntity.getId().toString(),
-                EventType.ORDER_EVENT,
-                orderMapper.toEvent(orderEntity));
-
-        OutboxEventEntity paymentEvent = OutboxEventEntityFactory.create(
-                orderEntity.getId().toString(),
-                EventType.PAYMENT_EVENT,
-                paymentMapper.toEvent(orderEntity.getPayment()));
-
-        outboxRepository.save(orderCreatedEvent);
-        outboxRepository.save(paymentEvent);
+                eventType,
+                payload);
+        outboxRepository.save(event);
     }
 
-    private void saveIdempotency(OrderRequestDTO dto, CreatedOrderResponseDTO response, String hash) {
+    private void saveOutboxOrderEvent(OrderEntity orderEntity) {
+        saveOutboxEvent(orderEntity, EventType.ORDER_EVENT, orderMapper.toEvent(orderEntity));
+    }
+
+    private void saveOutboxPaymentEvent(OrderEntity orderEntity) {
+        saveOutboxEvent(orderEntity, EventType.PAYMENT_EVENT, paymentMapper.toEvent(orderEntity.getPayment()));
+    }
+
+        private void saveIdempotency(OrderRequestDTO dto, CreatedOrderResponseDTO response, String hash) {
         String stringResponse = orderIdempotencyMapper.toJson(response);
         OrderIdempotencyEntity entity = orderIdempotencyMapper.toEntity(dto);
         entity.setRequestHash(hash);

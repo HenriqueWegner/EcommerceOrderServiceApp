@@ -60,7 +60,7 @@ public class OrderController {
 
     @PatchMapping("{id}/payment")
     @PreAuthorize("hasAnyRole(@environment.getProperty('security.roles.all-access').split(','))")
-    @Operation(summary = "Update Payent", description="Update payment status.")
+    @Operation(summary = "Update Payment", description="Update payment status.")
     @ApiResponses({
             @ApiResponse(responseCode = "202", description = "Updated with success."),
             @ApiResponse(responseCode = "422", description = "Validation error."),
@@ -87,4 +87,19 @@ public class OrderController {
 
         List<OrderResponseDTO> orders = orderUseCase.findOrdersByCustomer(customerId);
         return ResponseEntity.ok(orders);    }
+
+    @PutMapping("{id}/cancel")
+    @PreAuthorize("hasAnyRole(@environment.getProperty('security.roles.all-access').split(','))")
+    @Operation(summary = "Cancel", description="Cancel order.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "Updated with success."),
+            @ApiResponse(responseCode = "404", description = "Order not found.")
+    })
+    public ResponseEntity<Object> cancelOrder(@PathVariable("id") String id){
+        log.info("Cancelling order for id: {}", id);
+
+        return orderUseCase.cancelOrder(id)
+                .map(updated -> ResponseEntity.accepted().build())
+                .orElseGet(ResponseEntity.notFound()::build);
+    }
 }

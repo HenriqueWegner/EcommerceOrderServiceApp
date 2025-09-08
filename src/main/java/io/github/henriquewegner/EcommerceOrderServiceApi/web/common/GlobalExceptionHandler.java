@@ -1,10 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.common;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.CustomerApiException;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidEnumException;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidFieldException;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.*;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.SingleError;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
@@ -52,6 +49,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicatedRegistryException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicatedRegistryException(DuplicatedRegistryException e) {
+        return ErrorResponse.conflict(e.getMessage());
+    }
+
+    @ExceptionHandler(CancellationStatusException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleCancellationStatusException(CancellationStatusException e) {
         return ErrorResponse.conflict(e.getMessage());
     }
 
