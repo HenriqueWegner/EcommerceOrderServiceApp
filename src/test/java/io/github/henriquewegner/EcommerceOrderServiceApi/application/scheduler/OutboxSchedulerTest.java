@@ -39,7 +39,7 @@ class OutboxSchedulerTest {
         String orderCreatedId = UUID.randomUUID().toString();
         String paymentEventId = UUID.randomUUID().toString();
 
-        when(orderCreatedEvent.getEventType()).thenReturn(EventType.ORDER_CREATED);
+        when(orderCreatedEvent.getEventType()).thenReturn(EventType.ORDER_EVENT);
         when(orderCreatedEvent.getPayload()).thenReturn("order-payload");
         when(orderCreatedEvent.getAggregateId()).thenReturn(orderCreatedId);
 
@@ -55,7 +55,7 @@ class OutboxSchedulerTest {
         verify(publisher).publishMessage(
                 eq("order-payload"),
                 eq(orderCreatedId),
-                eq(EventType.ORDER_CREATED),
+                eq(EventType.ORDER_EVENT),
                 eq(orderCreatedEvent)
         );
         verify(publisher).publishMessage(

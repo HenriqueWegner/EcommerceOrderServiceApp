@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Order {
 
     private UUID id;
-    private Customer customer;
+    private UUID customerId;
     private List<OrderItem> items;
     private Currency currency;
     private Payment payment;

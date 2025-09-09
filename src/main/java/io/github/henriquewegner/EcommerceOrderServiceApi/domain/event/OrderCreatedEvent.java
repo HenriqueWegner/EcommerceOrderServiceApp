@@ -8,6 +8,7 @@ import java.util.List;
 
 @Data
 public class OrderCreatedEvent {
+
     private String id;
     private CustomerCreatedEvent customer;
     private List<OrderItemCreatedEvent> items;

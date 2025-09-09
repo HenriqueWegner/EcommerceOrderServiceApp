@@ -4,7 +4,6 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.application.validator.O
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.ShippingAddress;
@@ -20,16 +19,16 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQ
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderIdempotencyRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.CustomerApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentUpdateRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerApiResponse;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.CustomerMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderIdempotencyMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.PaymentMapper;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,8 +67,8 @@ public class OrderUseCaseImpl implements OrderUseCase {
             return alreadyExistsResponse.get();
         }
 
-        Customer customer = findCustomer(orderDTO.customerId());
-        Order order = prepareOrder(orderDTO, customer);
+        checkIfCustomerExists(orderDTO.customerId());
+        Order order = prepareOrder(orderDTO);
         OrderEntity savedEntity = orderRepository.save(order);
         saveOutboxOrderEvent(savedEntity);
         saveOutboxPaymentEvent(savedEntity);
@@ -90,8 +89,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
     @Override
     public List<OrderResponseDTO> findOrdersByCustomer(String customerId) {
-        Customer customer = findCustomer(customerId);
-        List<OrderEntity> customerList = orderRepository.findByCustomer(customer);
+        List<OrderEntity> customerList = orderRepository.findByCustomerId(UUID.fromString(customerId));
         return orderMapper.entityListToDtoList(customerList);
     }
 
@@ -146,15 +144,15 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
     }
 
-    private Customer findCustomer(String customerId){
+    private CustomerApiResponse checkIfCustomerExists(String customerId){
 
         return Optional.ofNullable(customerApi.findCustomer(customerId))
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found."));
+                .orElseThrow(() -> new CustomerApiException("Customer not found."));
     }
 
-    private Order prepareOrder(OrderRequestDTO orderDTO, Customer customer){
+    private Order prepareOrder(OrderRequestDTO orderDTO){
 
-        Order order = orderMapper.toDomain(orderDTO, customer);
+        Order order = orderMapper.toDomain(orderDTO);
         orderValidator.validate(order);
         setInitialStatus(order);
         enrichAddress(order);

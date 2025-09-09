@@ -1,8 +1,8 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerApiResponse;
 
 public interface CustomerApi {
 
-    Customer findCustomer(String id);
+    CustomerApiResponse findCustomer(String id);
 }

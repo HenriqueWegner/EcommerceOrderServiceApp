@@ -1,14 +1,12 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.common;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.*;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.SingleError;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ErrorResponse;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.SingleError;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ApiException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;

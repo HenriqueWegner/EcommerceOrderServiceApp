@@ -1,6 +1,5 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.repositories;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 

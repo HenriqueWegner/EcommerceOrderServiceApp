@@ -2,7 +2,6 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.application.usecase;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
