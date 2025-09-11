@@ -23,13 +23,14 @@ create table orders (
     complement varchar(255)
 );
 
-create table order_items (
-    id uuid not null primary key,
-    order_id uuid not null,
-    sku varchar(100) not null,
-    quantity numeric(4),
-    unit_price numeric(18,2),
-    constraint fk_orderitems_order foreign key (order_id) references orders(id)
+CREATE TABLE order_items (
+
+    id UUID NOT NULL PRIMARY KEY,
+    order_id UUID NOT NULL,
+    sku VARCHAR(100) NOT NULL,
+    quantity NUMERIC(4) NOT NULL,
+    unit_price NUMERIC(18,2) NOT NULL,
+    CONSTRAINT fk_orderitems_order FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
 create table payments (
@@ -69,4 +70,14 @@ CREATE TABLE outbox_events (
     payload JSONB,
     processed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+
+CREATE TABLE products (
+    sku VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    unit_price NUMERIC(18,2) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    reserved INT NOT NULL DEFAULT 0
 );

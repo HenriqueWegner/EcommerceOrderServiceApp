@@ -5,7 +5,6 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ErrorR
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.SingleError;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.errors.ApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -38,9 +37,9 @@ public class GlobalExceptionHandler {
                 errorsList);
     }
 
-    @ExceptionHandler(CustomerApiException.class)
+    @ExceptionHandler(ExternalApiException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleCustomerApiException(CustomerApiException e) {
+    public ErrorResponse handleExternalApiException(ExternalApiException e) {
         return ErrorResponse.internalServerError(e.getMessage());
     }
 
@@ -56,6 +55,12 @@ public class GlobalExceptionHandler {
         return ErrorResponse.conflict(e.getMessage());
     }
 
+    @ExceptionHandler(InsufficientStockException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleInsufficientStockException(InsufficientStockException e) {
+        return ErrorResponse.conflict(e.getMessage());
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
@@ -68,13 +73,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(),
                 "Validation error.",
                 List.of(new SingleError(e.getField(), e.getMessage())));
-    }
-
-    @ExceptionHandler(ApiException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleApiExceptions(RuntimeException e){
-        log.error("Unexpected error: {}", e);
-        return ErrorResponse.internalServerError(e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

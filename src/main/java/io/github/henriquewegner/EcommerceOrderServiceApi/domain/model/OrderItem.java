@@ -9,7 +9,6 @@ import java.util.UUID;
 public class OrderItem{
 
     private UUID id;
-    private Order order;
     private String sku;
     private Integer quantity;
     private BigDecimal unitPrice;

@@ -4,6 +4,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.application.validator.O
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
+import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.RequestType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.ShippingAddress;
@@ -15,16 +16,18 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.P
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.usecase.OrderUseCase;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.AddressLookup;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.CustomerApi;
+import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ProductApi;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderIdempotencyRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.CustomerApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.ExternalApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.OrderRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.PaymentUpdateRequestDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.ProcessProductRequestDTO;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.ReservedItemRequestDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CreatedOrderResponseDTO;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerApiResponse;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.OrderResponseDTO;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderIdempotencyMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
@@ -53,6 +56,7 @@ public class OrderUseCaseImpl implements OrderUseCase {
     private final AddressLookup addressLookup;
     private final ShippingQuotation shippingQuotation;
     private final CustomerApi customerApi;
+    private final ProductApi productApi;
     private final PaymentEventHandler paymentEventHandler;
 
 
@@ -144,10 +148,10 @@ public class OrderUseCaseImpl implements OrderUseCase {
 
     }
 
-    private CustomerApiResponse checkIfCustomerExists(String customerId){
+    private void checkIfCustomerExists(String customerId){
 
-        return Optional.ofNullable(customerApi.findCustomer(customerId))
-                .orElseThrow(() -> new CustomerApiException("Customer not found."));
+        Optional.ofNullable(customerApi.findCustomer(customerId))
+                .orElseThrow(() -> new ExternalApiException("Customer not found."));
     }
 
     private Order prepareOrder(OrderRequestDTO orderDTO){
@@ -155,12 +159,26 @@ public class OrderUseCaseImpl implements OrderUseCase {
         Order order = orderMapper.toDomain(orderDTO);
         orderValidator.validate(order);
         setInitialStatus(order);
+        reserveStock(order);
         enrichAddress(order);
         quoteShipping(order);
 
         return order;
     }
 
+    private void setInitialStatus(Order order){
+
+        order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
+        order.setStatus(OrderStatus.CREATED);
+    }
+
+    private void reserveStock(Order order) {
+        List<ReservedItemRequestDTO> reservedItems = order.getItems().stream()
+                .map(item -> new ReservedItemRequestDTO(item.getSku(), item.getQuantity()))
+                .toList();
+
+        productApi.reserveStock(new ProcessProductRequestDTO(RequestType.RESERVE, reservedItems));
+    }
 
     private void enrichAddress(Order order) {
         ShippingAddress address = addressLookup.lookUpByCep(order.getShippingAddress().getCep());
@@ -175,11 +193,6 @@ public class OrderUseCaseImpl implements OrderUseCase {
         order.setShipping(quotation);
     }
 
-    private void setInitialStatus(Order order){
-
-        order.getPayment().setPaymentStatus(PaymentStatus.PENDING);
-        order.setStatus(OrderStatus.CREATED);
-    }
 
     private void saveOutboxEvent(OrderEntity orderEntity, EventType eventType, Object payload) {
         OutboxEventEntity event = OutboxEventEntityFactory.create(

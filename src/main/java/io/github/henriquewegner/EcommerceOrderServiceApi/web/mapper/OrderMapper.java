@@ -21,8 +21,6 @@ public interface OrderMapper {
     @Mapping(target = "id", ignore = true)
     Order toDomain(OrderRequestDTO dto);
 
-    List<Order> toDomain(List<OrderEntity> entities);
-
     Order toDomain(OrderEntity orderEntity);
 
     @Mapping(target = "items", source = "items")
@@ -32,10 +30,11 @@ public interface OrderMapper {
     @Mapping(target = "items", source = "items")
     OrderResponseDTO toDto(OrderEntity entity);
 
+    List<OrderResponseDTO> entityListToDtoList(List<OrderEntity> entityList);
+
     @Mapping(target = "id", source = "id")
     CreatedOrderResponseDTO orderEntityToCreatedOrderResponseDTO(OrderEntity orderEntity);
 
     OrderCreatedEvent toEvent(OrderEntity entity);
 
-    List<OrderResponseDTO> entityListToDtoList(List<OrderEntity> entityList);
 }
