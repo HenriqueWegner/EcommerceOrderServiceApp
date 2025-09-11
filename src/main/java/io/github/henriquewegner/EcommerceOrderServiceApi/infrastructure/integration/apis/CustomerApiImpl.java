@@ -1,8 +1,8 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integration.apis;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.ExternalApiException;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.CustomerApiResponse;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.CustomerApi;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.CustomerApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,14 +19,16 @@ public class CustomerApiImpl implements CustomerApi {
     private final OAuth2ApiClient apiClient;
 
     @Override
-    public Customer findCustomer(String id) {
-
+    public CustomerApiResponse findCustomer(String id) {
         try {
-            return apiClient.callApi(CLIENT_REGISTRATION_ID,
+            CustomerApiResponse customerApiResponse = apiClient.callApiGet(CLIENT_REGISTRATION_ID,
                     CUSTOMERS_API_URL + id,
-                    Customer.class);
+                    CustomerApiResponse.class);
+
+            return customerApiResponse;
+
         }catch(RuntimeException e){
-            throw new CustomerApiException("Customer API not available.");
+            throw new ExternalApiException("Customer API not available.");
         }
     }
 }

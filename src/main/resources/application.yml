@@ -41,6 +41,11 @@ spring:
             client-secret: ${CUSTOMER_CLIENT_SECRET}
             authorization-grant-type: client_credentials
             provider: my-auth-server
+          product-client:
+            client-id: ${PRODUCT_CLIENT_ID}
+            client-secret: ${PRODUCT_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            provider: my-auth-server
         provider:
           my-auth-server:
             token-uri: http://localhost:9000/oauth2/token
@@ -57,9 +62,24 @@ api:
     via-cep: "https://viacep.com.br/ws/%s/json/"
     shipping-quotation: "https://showcommerce.com.br/api/calculadora-frete/"
     customers: "http://localhost:8081/customers/"
+    products: "http://localhost:8085/products/stock"
 logging:
   level:
     org.springframework.security: DEBUG
-    root: ERROR
+    org:
+      springframework:
+        web:
+          reactive:
+            function:
+              client:
+                ExchangeFunctions: DEBUG
+        org:
+          springframework:
+            web:
+              reactive:
+                function:
+                  client:
+                    ExchangeFunctions=DEBUG:
+#    root: ERROR
 springdoc:
   override-with-generic-response: false

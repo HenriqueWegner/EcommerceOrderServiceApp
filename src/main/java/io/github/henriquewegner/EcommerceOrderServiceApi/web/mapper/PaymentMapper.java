@@ -14,8 +14,6 @@ public interface PaymentMapper {
     @Mapping(target = "order", ignore = true)
     Payment paymentEntityToPayment(PaymentEntity entity);
 
-    Payment paymentUpdateRequestDTOToPayment(PaymentUpdateRequestDTO dto);
-
     PaymentEvent toEvent(PaymentEntity entity);
 
 }

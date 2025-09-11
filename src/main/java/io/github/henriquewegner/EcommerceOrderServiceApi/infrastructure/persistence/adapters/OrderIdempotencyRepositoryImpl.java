@@ -3,7 +3,6 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persist
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderIdempotencyEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.repositories.OrderIdempotencyRepositoryJpa;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderIdempotencyRepository;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderIdempotencyMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

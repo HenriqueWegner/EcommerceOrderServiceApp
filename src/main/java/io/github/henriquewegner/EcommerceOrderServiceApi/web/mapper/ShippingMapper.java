@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ShippingMapper {
+
     @Mapping(target = "order", ignore = true)
     Shipping toDomain(ShippingEntity entity);
 }

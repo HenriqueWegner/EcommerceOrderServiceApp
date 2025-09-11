@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public record OrderResponseDTO(
         UUID id,
-        CustomerResponseDTO customer,
+        UUID customerId,
         List<OrderItemResponseDTO>items,
         Currency currency,
         PaymentResponseDTO payment,

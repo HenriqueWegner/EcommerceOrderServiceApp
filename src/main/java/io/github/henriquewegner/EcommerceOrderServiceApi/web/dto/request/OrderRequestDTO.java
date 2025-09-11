@@ -12,6 +12,7 @@ import java.util.List;
 public record OrderRequestDTO(
 
         @UUID
+        @NotBlank(message = "Obligatory field.")
         @NotNull(message = "Obligatory field.")
         String customerId,
         @NotEmpty

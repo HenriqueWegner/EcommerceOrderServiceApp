@@ -3,18 +3,12 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.application.validator;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.OrderItem;
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Payment;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.CancellationStatusException;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidFieldException;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.StatusException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor

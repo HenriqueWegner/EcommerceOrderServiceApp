@@ -6,5 +6,6 @@ import java.util.UUID;
 
 @Data
 public class PaymentOrderEvent {
+
     private UUID id;
 }

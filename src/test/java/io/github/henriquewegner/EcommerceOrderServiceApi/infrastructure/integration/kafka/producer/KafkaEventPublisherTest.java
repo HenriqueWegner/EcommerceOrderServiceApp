@@ -49,7 +49,7 @@ class KafkaEventPublisherTest {
         when(kafkaTemplate.send(eq("order-topic"), eq(key), eq(event))).thenReturn(future);
         when(outboxRepository.save(any())).thenReturn(outboxEvent);
 
-        publisher.publishMessage(event, key, EventType.ORDER_CREATED, outboxEvent);
+        publisher.publishMessage(event, key, EventType.ORDER_EVENT, outboxEvent);
 
         // Simulate successful send
         future.complete(sendResult);
@@ -93,7 +93,7 @@ class KafkaEventPublisherTest {
 
         when(kafkaTemplate.send(eq("order-topic"), eq(key), eq(event))).thenReturn(future);
 
-        publisher.publishMessage(event, key, EventType.ORDER_CREATED, outboxEvent);
+        publisher.publishMessage(event, key, EventType.ORDER_EVENT, outboxEvent);
 
         // Simulate failure
         future.completeExceptionally(new RuntimeException("Kafka error"));

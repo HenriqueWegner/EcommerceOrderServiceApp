@@ -1,7 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions;
 
-public class CustomerApiException extends RuntimeException {
-    public CustomerApiException(String message) {
+public class ExternalApiException extends RuntimeException {
+    public ExternalApiException(String message) {
         super(message);
     }
 }

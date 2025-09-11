@@ -2,6 +2,7 @@ package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.integra
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Shipping;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.api.ShippingQuotation;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.ExternalApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ShippingQuotationResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ApiException;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.time.LocalDate;
 
 @Component
@@ -44,7 +44,7 @@ public class ShippingQuotationImpl implements ShippingQuotation {
             ShippingQuotationResponseDTO response = restTemplate.getForObject(url, ShippingQuotationResponseDTO.class);
 
             if (response == null || response.valor() == null) {
-                throw new ApiException("Invalid CEP or API not available.");
+                throw new ExternalApiException("Invalid CEP or API not available.");
             }
 
             return new Shipping(
@@ -57,7 +57,7 @@ public class ShippingQuotationImpl implements ShippingQuotation {
                     null
             );
         } catch (Exception e) {
-            throw new ApiException("Invalid CEP or API not available.");
+            throw new ExternalApiException("Invalid CEP or API not available.");
         }
 
     }

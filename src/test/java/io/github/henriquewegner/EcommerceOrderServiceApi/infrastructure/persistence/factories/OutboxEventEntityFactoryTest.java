@@ -11,7 +11,7 @@ class OutboxEventEntityFactoryTest {
     @Test
     void create_setsAllFields() {
         String aggregateId = "123";
-        EventType eventType = EventType.ORDER_CREATED;
+        EventType eventType = EventType.ORDER_EVENT;
         Object payload = "payload";
 
         OutboxEventEntity entity = OutboxEventEntityFactory.create(aggregateId, eventType, payload);

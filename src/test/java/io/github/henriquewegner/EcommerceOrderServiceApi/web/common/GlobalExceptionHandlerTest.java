@@ -1,6 +1,7 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.web.common;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.DuplicatedRegistryException;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.ExternalApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidEnumException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.InvalidFieldException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.response.ErrorResponse;
@@ -66,9 +67,9 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleApiExceptions_returnsInternalServerError() {
-        ApiException ex = new ApiException("Kafka error");
-        ErrorResponse response = handler.handleApiExceptions(ex);
+    void handleExternalApiExceptions_returnsInternalServerError() {
+        ExternalApiException ex = new ExternalApiException("Kafka error");
+        ErrorResponse response = handler.handleExternalApiException(ex);
         assertEquals(500, response.status());
         assertEquals("Kafka error", response.message());
     }

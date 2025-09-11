@@ -1,12 +1,9 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.adapters;
 
-import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Customer;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.repositories.OrderRepositoryJpa;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
-import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.CustomerMapper;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,13 +18,11 @@ public class OrderRepositoryImpl implements OrderRepository{
 
     private final OrderRepositoryJpa orderRepositoryJpa;
     private final OrderMapper orderMapper;
-    private final CustomerMapper customerMapper;
 
     @Override
-    public List<OrderEntity> findByCustomer(Customer customer) {
-        CustomerEntity customerEntity = customerMapper.toEntity(customer);
+    public List<OrderEntity> findByCustomerId(UUID customerId) {
 
-        return orderRepositoryJpa.findByCustomer(customerEntity);
+        return orderRepositoryJpa.findByCustomerId(customerId);
     }
 
     @Override

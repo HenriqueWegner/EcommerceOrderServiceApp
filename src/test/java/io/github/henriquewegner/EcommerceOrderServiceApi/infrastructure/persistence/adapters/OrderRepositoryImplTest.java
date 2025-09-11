@@ -1,17 +1,16 @@
 package io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.adapters;
 
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.CustomerEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.repositories.OrderRepositoryJpa;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class OrderRepositoryImplTest {
@@ -20,13 +19,7 @@ class OrderRepositoryImplTest {
     private final OrderMapper mapper = mock(OrderMapper.class);
     private final OrderRepositoryImpl repo = new OrderRepositoryImpl(jpa, mapper);
 
-    @Test
-    void findByCustomer_returnsList() {
-        CustomerEntity customer = new CustomerEntity();
-        List<OrderEntity> orders = List.of(new OrderEntity());
-        when(jpa.findByCustomer(customer)).thenReturn(orders);
-        assertEquals(orders, repo.findByCustomer(customer));
-    }
+
 
     @Test
     void save_mapsLinksAndSaves() {
