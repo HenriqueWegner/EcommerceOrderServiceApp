@@ -1,5 +1,7 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.application.usecase;
+package io.github.henriquewegner.EcommerceOrderServiceApi.application.handlers;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.application.services.OutboxEventService;
+import io.github.henriquewegner.EcommerceOrderServiceApi.application.services.StockReservationService;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
@@ -9,6 +11,7 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persiste
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.ShippingEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.ExternalApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.StatusException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +37,9 @@ public class ShippingEventHandlerImpl implements ShippingEventHandler {
     );
 
     private final OrderRepository orderRepository;
-    private final OutboxRepository outboxRepository;
     private final OrderMapper orderMapper;
+    private final OutboxEventService outboxEventService;
+    private final StockReservationService stockReservationService;
 
 
     @Override
@@ -47,12 +51,14 @@ public class ShippingEventHandlerImpl implements ShippingEventHandler {
                     Order order = orderMapper.toDomain(orderEntity);
                     validateStatusTransition(order.getStatus(), status);
                     order.setStatus(status);
+                    removeProductFromStock(order);
                     OrderEntity savedOrderEntity = orderRepository.save(order);
                     saveOutboxEvent(savedOrderEntity);
 
                     return savedOrderEntity;
                 });
     }
+
 
     private void validateStatusTransition(OrderStatus current, OrderStatus target) {
         if (UNAVAILABLE_STATUSES.contains(current) || current == target) {
@@ -69,13 +75,18 @@ public class ShippingEventHandlerImpl implements ShippingEventHandler {
         }
     }
 
+    private void removeProductFromStock(Order order) {
+        try {
+            if (order.getStatus().equals(OrderStatus.SHIPPED)) {
+                stockReservationService.removeFromStock(order);
+            }
+        } catch(ExternalApiException e) {
+            log.error("Stock could not be reserved.");
+        }
+    }
 
     private void saveOutboxEvent(OrderEntity orderEntity) {
-        OutboxEventEntity orderCreatedEvent = OutboxEventEntityFactory.create(
-                orderEntity.getId().toString(),
-                EventType.ORDER_EVENT,
-                orderMapper.toEvent(orderEntity));
-
-        outboxRepository.save(orderCreatedEvent);
+        outboxEventService.saveOutboxEvent(
+                orderEntity, EventType.ORDER_EVENT, orderMapper.toEvent(orderEntity));
     }
 }

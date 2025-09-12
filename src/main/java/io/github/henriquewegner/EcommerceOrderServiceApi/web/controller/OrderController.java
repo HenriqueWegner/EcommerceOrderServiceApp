@@ -84,7 +84,8 @@ public class OrderController {
         log.info("Finding order for customer id: {}", customerId);
 
         List<OrderResponseDTO> orders = orderUseCase.findOrdersByCustomer(customerId);
-        return ResponseEntity.ok(orders);    }
+        return ResponseEntity.ok(orders);
+    }
 
     @PutMapping("{id}/cancel")
     @PreAuthorize("hasAnyRole(@environment.getProperty('security.roles.all-access').split(','))")

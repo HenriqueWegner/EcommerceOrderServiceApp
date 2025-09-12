@@ -21,15 +21,15 @@ public class OAuth2ApiClient {
     private final WebClient webClient;
 
     public OAuth2ApiClient(ClientRegistrationRepository clients,
-                           OAuth2AuthorizedClientRepository authRepo){
+                           OAuth2AuthorizedClientService clientService){
 
         OAuth2AuthorizedClientProvider provider =
                 OAuth2AuthorizedClientProviderBuilder.builder()
                 .clientCredentials()
                 .build();
 
-        DefaultOAuth2AuthorizedClientManager manager =
-                new DefaultOAuth2AuthorizedClientManager(clients, authRepo);
+        AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
+                new AuthorizedClientServiceOAuth2AuthorizedClientManager(clients, clientService);
 
         manager.setAuthorizedClientProvider(provider);
 

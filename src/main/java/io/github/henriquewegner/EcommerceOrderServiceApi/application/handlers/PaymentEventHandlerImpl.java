@@ -1,15 +1,15 @@
-package io.github.henriquewegner.EcommerceOrderServiceApi.application.usecase;
+package io.github.henriquewegner.EcommerceOrderServiceApi.application.handlers;
 
+import io.github.henriquewegner.EcommerceOrderServiceApi.application.services.OutboxEventService;
+import io.github.henriquewegner.EcommerceOrderServiceApi.application.services.StockReservationService;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.EventType;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.OrderStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.enums.PaymentStatus;
 import io.github.henriquewegner.EcommerceOrderServiceApi.domain.model.Order;
 import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OrderEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.entities.OutboxEventEntity;
-import io.github.henriquewegner.EcommerceOrderServiceApi.infrastructure.persistence.factories.OutboxEventEntityFactory;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.in.eventhandler.PaymentEventHandler;
 import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OrderRepository;
-import io.github.henriquewegner.EcommerceOrderServiceApi.ports.out.repository.OutboxRepository;
+import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.ExternalApiException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.common.exceptions.StatusException;
 import io.github.henriquewegner.EcommerceOrderServiceApi.web.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,9 @@ import java.util.UUID;
 public class PaymentEventHandlerImpl implements PaymentEventHandler {
 
     private final OrderRepository orderRepository;
-    private final OutboxRepository outboxRepository;
     private final OrderMapper orderMapper;
+    private final OutboxEventService outboxEventService;
+    private final StockReservationService stockReservationService;
 
     @Override
     @Transactional
@@ -40,6 +41,7 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
                     verifyIfProcessed(order);
                     preparePayment(status, cardToken, order);
                     prepareOrderStatus(status, order);
+                    restockProduct(order);
                     OrderEntity savedOrderEntity = orderRepository.save(order);
                     saveOutboxEvent(savedOrderEntity);
 
@@ -58,7 +60,6 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
     private void preparePayment(PaymentStatus status, String cardToken, Order order) {
         order.getPayment().setPaymentStatus(status);
         order.getPayment().setCardToken(cardToken);
-
     }
 
     private void prepareOrderStatus(PaymentStatus status, Order order) {
@@ -71,12 +72,17 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
     }
 
     private void saveOutboxEvent(OrderEntity orderEntity) {
-        OutboxEventEntity orderCreatedEvent = OutboxEventEntityFactory.create(
-                orderEntity.getId().toString(),
-                EventType.ORDER_EVENT,
-                orderMapper.toEvent(orderEntity));
-
-        outboxRepository.save(orderCreatedEvent);
+        outboxEventService.saveOutboxEvent(
+                orderEntity,EventType.ORDER_EVENT,orderMapper.toEvent(orderEntity));
     }
 
+    private void restockProduct(Order order) {
+        if(order.getStatus().equals(OrderStatus.FAILED_PAYMENT)){
+            try {
+                stockReservationService.restockProduct(order);
+            } catch(ExternalApiException e) {
+                log.error("Stock could not be reserved.");
+            }
+        }
+    }
 }
