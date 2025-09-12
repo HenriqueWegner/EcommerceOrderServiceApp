@@ -4,6 +4,6 @@ import io.github.henriquewegner.EcommerceOrderServiceApi.web.dto.request.Process
 
 public interface ProductApi {
 
-    void reserveStock(ProcessProductRequestDTO processProductRequestDTO);
+    void processStock(ProcessProductRequestDTO processProductRequestDTO);
 
 }

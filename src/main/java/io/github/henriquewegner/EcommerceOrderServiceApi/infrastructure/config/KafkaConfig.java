@@ -15,6 +15,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
 
@@ -62,14 +63,16 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, PaymentEvent> paymentConsumerFactory() {
-        JsonDeserializer<PaymentEvent> jd = new JsonDeserializer<>(PaymentEvent.class);
-        jd.addTrustedPackages("io.github.henriquewegner.EcommerceOrderServiceApi.domain.event");
-        jd.ignoreTypeHeaders(); // ✅ não exige __TypeId__ nos headers
-        return new DefaultKafkaConsumerFactory<>(
-                baseProps("payment-group"),
-                new StringDeserializer(),
-                jd
-        );
+        Map<String, Object> props = baseProps("payment-group");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
+        props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class.getName());
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "io.github.henriquewegner.EcommerceOrderServiceApi.domain.event");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, PaymentEvent.class.getName());
+        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+
+        return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
@@ -84,14 +87,16 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, ShippingEvent> shippingConsumerFactory() {
-        JsonDeserializer<ShippingEvent> jd = new JsonDeserializer<>(ShippingEvent.class);
-        jd.addTrustedPackages("io.github.henriquewegner.EcommerceOrderServiceApi.domain.event");
-        jd.ignoreTypeHeaders();
-        return new DefaultKafkaConsumerFactory<>(
-                baseProps("shipping-group"),
-                new StringDeserializer(),
-                jd
-        );
+        Map<String, Object> props = baseProps("shipping-group");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
+        props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class.getName());
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "io.github.henriquewegner.EcommerceOrderServiceApi.domain.event");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, ShippingEvent.class.getName());
+        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+
+        return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
@@ -104,5 +109,7 @@ public class KafkaConfig {
         factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
+
+
 }
 

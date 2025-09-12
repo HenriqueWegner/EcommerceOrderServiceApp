@@ -48,10 +48,10 @@ spring:
             provider: my-auth-server
         provider:
           my-auth-server:
-            token-uri: http://localhost:9000/oauth2/token
+            token-uri: ${TOKEN_URI}
         resourceserver:
           jwt:
-            jwk-set-uri: http://localhost:9000/.well-known/jwks.json
+            jwk-set-uri: ${JWT_URI}
 security:
   roles:
     admin-access: ADMIN
@@ -59,10 +59,10 @@ security:
     all-access: ADMIN,USER
 api:
   url:
-    via-cep: "https://viacep.com.br/ws/%s/json/"
-    shipping-quotation: "https://showcommerce.com.br/api/calculadora-frete/"
-    customers: "http://localhost:8081/customers/"
-    products: "http://localhost:8085/products/stock"
+    via-cep: ${VIA_CEP_URL}
+    shipping-quotation: ${SHIPPING_QUOTATION_URL}
+    customers: ${CUSTOMERS_URL}
+    products: ${PRODUCTS_URL}
 logging:
   level:
     org.springframework.security: DEBUG
