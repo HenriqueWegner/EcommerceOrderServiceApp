@@ -80,7 +80,7 @@ public class ShippingEventHandlerImpl implements ShippingEventHandler {
             if (order.getStatus().equals(OrderStatus.SHIPPED)) {
                 stockReservationService.removeFromStock(order);
             }
-        }catch(ExternalApiException e){
+        } catch(ExternalApiException e) {
             log.error("Stock could not be reserved.");
         }
     }

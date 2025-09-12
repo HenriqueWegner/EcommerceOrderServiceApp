@@ -6,7 +6,7 @@ spring:
       enabled: ALWAYS
   datasource:
     url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5435/ecommerce}
-    username: ${DATSOURCE_USERNAME:postgres}
+    username: ${DATASOURCE_USERNAME:postgres}
     password: ${DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:

@@ -78,9 +78,9 @@ public class PaymentEventHandlerImpl implements PaymentEventHandler {
 
     private void restockProduct(Order order) {
         if(order.getStatus().equals(OrderStatus.FAILED_PAYMENT)){
-            try{
+            try {
                 stockReservationService.restockProduct(order);
-            }catch(ExternalApiException e){
+            } catch(ExternalApiException e) {
                 log.error("Stock could not be reserved.");
             }
         }

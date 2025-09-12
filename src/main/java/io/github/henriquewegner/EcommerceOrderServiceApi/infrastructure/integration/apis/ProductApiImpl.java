@@ -34,8 +34,11 @@ public class ProductApiImpl implements ProductApi {
                     PRODUCTS_API_URL,
                     processProductRequestDTO);
 
-        } catch (ExternalApiException e) {
-            throw new InsufficientStockException("Insufficient stock for product.");
+        } catch (RuntimeException e) {
+            if (e instanceof ExternalApiException) {
+                throw new InsufficientStockException("Insufficient stock for product.");
+            }
+            throw e;
         }
     }
 
